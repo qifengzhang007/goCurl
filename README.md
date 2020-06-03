@@ -1,4 +1,4 @@
-# goz
+# goCurl
 
 - 基于goz改造，感谢goz（github.com/idoubi/goz.git）原作者提供了大量、优质的基础代码
 - 相比原版变化：
