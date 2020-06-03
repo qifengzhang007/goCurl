@@ -14,7 +14,7 @@
 ## Installation
 
 ```
-go get -u github.com/qifengzhang007/goz.git
+go get -u github.com/qifengzhang007/goCurl
 ```
 
 
