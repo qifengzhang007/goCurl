@@ -1,4 +1,4 @@
-package goz
+package goCurl
 
 import "time"
 

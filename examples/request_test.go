@@ -1,4 +1,4 @@
-package goz
+package goCurl
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 )
 
 func ExampleRequest_Get() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
 	//resp, err := cli.Get("http://127.0.0.1:8091/get")
 	resp, err := cli.Get("http://hq.sinajs.cn/list=sz002307,sh600928,sh603101,sz002547")
@@ -18,14 +18,14 @@ func ExampleRequest_Get() {
 		log.Fatalln(err)
 	}
 	fmt.Printf("%T", resp)
-	// Output: *goz.Response
+	// Output: *goCurl.Response
 
 }
 
 func ExampleRequest_Down() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
-	res := cli.Down("http://139.196.101.31:2080/GinSkeleton.jpg", "F:/2020_project/go/goz/examples/", goz.Options{
+	res := cli.Down("http://139.196.101.31:2080/GinSkeleton.jpg", "F:/2020_project/go/goz/examples/", goCurl.Options{
 		Timeout: 5.0,
 	})
 	fmt.Printf("%t", res)
@@ -33,9 +33,9 @@ func ExampleRequest_Down() {
 }
 
 func ExampleRequest_Get_withQuery_arr() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
-	resp, err := cli.Get("http://127.0.0.1:8091/get-with-query", goz.Options{
+	resp, err := cli.Get("http://127.0.0.1:8091/get-with-query", goCurl.Options{
 		Query: map[string]interface{}{
 			"key1": 123,
 			"key2": []string{"value21", "value22"},
@@ -51,9 +51,9 @@ func ExampleRequest_Get_withQuery_arr() {
 }
 
 func ExampleRequest_Get_withQuery_str() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
-	resp, err := cli.Get("http://127.0.0.1:8091/get-with-query?key0=value0", goz.Options{
+	resp, err := cli.Get("http://127.0.0.1:8091/get-with-query?key0=value0", goCurl.Options{
 		Query: "key1=value1&key2=value21&key2=value22&key3=333",
 	})
 	if err != nil {
@@ -65,9 +65,9 @@ func ExampleRequest_Get_withQuery_str() {
 }
 
 func ExampleRequest_Get_withProxy() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
-	resp, err := cli.Get("https://www.fbisb.com/ip.php", goz.Options{
+	resp, err := cli.Get("https://www.fbisb.com/ip.php", goCurl.Options{
 		Timeout: 5.0,
 		Proxy:   "http://127.0.0.1:1087",
 	})
@@ -82,7 +82,7 @@ func ExampleRequest_Get_withProxy() {
 }
 
 func ExampleRequest_Post() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
 	resp, err := cli.Post("http://127.0.0.1:8091/post")
 	if err != nil {
@@ -90,13 +90,13 @@ func ExampleRequest_Post() {
 	}
 
 	fmt.Printf("%T", resp)
-	// Output: *goz.Response
+	// Output: *goCurl.Response
 }
 
 func ExampleRequest_Post_withHeaders() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
-	resp, err := cli.Post("http://127.0.0.1:8091/post-with-headers", goz.Options{
+	resp, err := cli.Post("http://127.0.0.1:8091/post-with-headers", goCurl.Options{
 		Headers: map[string]interface{}{
 			"User-Agent": "testing/1.0",
 			"Accept":     "application/json",
@@ -113,9 +113,9 @@ func ExampleRequest_Post_withHeaders() {
 }
 
 func ExampleRequest_Post_withCookies_str() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
-	resp, err := cli.Post("http://127.0.0.1:8091/post-with-cookies", goz.Options{
+	resp, err := cli.Post("http://127.0.0.1:8091/post-with-cookies", goCurl.Options{
 		Cookies: "cookie1=value1;cookie2=value2",
 	})
 	if err != nil {
@@ -126,10 +126,10 @@ func ExampleRequest_Post_withCookies_str() {
 }
 
 func ExampleRequest_Post_withCookies_map() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
-	//resp, err := cli.Post("http://127.0.0.1:8091/post-with-cookies", goz.Options{
-	resp, err := cli.Post("http://101.132.69.236/api/v2/test_network", goz.Options{
+	//resp, err := cli.Post("http://127.0.0.1:8091/post-with-cookies", goCurl.Options{
+	resp, err := cli.Post("http://101.132.69.236/api/v2/test_network", goCurl.Options{
 		Cookies: map[string]string{
 			"cookie1": "value1",
 			"cookie2": "value2",
@@ -147,7 +147,7 @@ func ExampleRequest_Post_withCookies_map() {
 }
 
 func ExampleRequest_Post_withCookies_obj() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
 	cookies := make([]*http.Cookie, 0, 2)
 	cookies = append(cookies, &http.Cookie{
@@ -164,7 +164,7 @@ func ExampleRequest_Post_withCookies_obj() {
 		Path:   "/cookies",
 	})
 
-	resp, err := cli.Post("http://127.0.0.1:8091/post-with-cookies", goz.Options{
+	resp, err := cli.Post("http://127.0.0.1:8091/post-with-cookies", goCurl.Options{
 		Cookies: cookies,
 	})
 	if err != nil {
@@ -176,9 +176,9 @@ func ExampleRequest_Post_withCookies_obj() {
 	//Output: *http.cancelTimerBody
 }
 func ExampleRequest_SimplePost() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
-	resp, err := cli.Post("http://101.132.69.236/api/v2/test_network", goz.Options{
+	resp, err := cli.Post("http://101.132.69.236/api/v2/test_network", goCurl.Options{
 		Headers: map[string]interface{}{
 			"Content-Type": "application/x-www-form-urlencoded",
 		},
@@ -198,9 +198,9 @@ func ExampleRequest_SimplePost() {
 }
 
 func ExampleRequest_Post_withFormParams() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
-	resp, err := cli.Post("http://127.0.0.1:8091/post-with-form-params", goz.Options{
+	resp, err := cli.Post("http://127.0.0.1:8091/post-with-form-params", goCurl.Options{
 		Headers: map[string]interface{}{
 			"Content-Type": "application/x-www-form-urlencoded",
 		},
@@ -221,9 +221,9 @@ func ExampleRequest_Post_withFormParams() {
 }
 
 func ExampleRequest_Post_withJSON() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
-	resp, err := cli.Post("http://127.0.0.1:8091/post-with-json", goz.Options{
+	resp, err := cli.Post("http://127.0.0.1:8091/post-with-json", goCurl.Options{
 		Headers: map[string]interface{}{
 			"Content-Type": "application/json",
 		},
@@ -244,7 +244,7 @@ func ExampleRequest_Post_withJSON() {
 }
 
 func ExampleRequest_Put() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
 	resp, err := cli.Put("http://127.0.0.1:8091/put")
 	if err != nil {
@@ -252,11 +252,11 @@ func ExampleRequest_Put() {
 	}
 
 	fmt.Printf("%T", resp)
-	// Output: *goz.Response
+	// Output: *goCurl.Response
 }
 
 func ExampleRequest_Patch() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
 	resp, err := cli.Patch("http://127.0.0.1:8091/patch")
 	if err != nil {
@@ -264,11 +264,11 @@ func ExampleRequest_Patch() {
 	}
 
 	fmt.Printf("%T", resp)
-	// Output: *goz.Response
+	// Output: *goCurl.Response
 }
 
 func ExampleRequest_Delete() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
 	resp, err := cli.Delete("http://127.0.0.1:8091/delete")
 	if err != nil {
@@ -276,11 +276,11 @@ func ExampleRequest_Delete() {
 	}
 
 	fmt.Printf("%T", resp)
-	// Output: *goz.Response
+	// Output: *goCurl.Response
 }
 
 func ExampleRequest_Options() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
 	resp, err := cli.Options("http://127.0.0.1:8091/options")
 	if err != nil {
@@ -288,5 +288,5 @@ func ExampleRequest_Options() {
 	}
 
 	fmt.Printf("%T", resp)
-	// Output: *goz.Response
+	// Output: *goCurl.Response
 }

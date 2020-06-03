@@ -1,4 +1,4 @@
-package goz
+package goCurl
 
 import (
 	"fmt"
@@ -6,8 +6,8 @@ import (
 )
 
 func ExampleNewClient() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
 	fmt.Printf("%T", cli)
-	// Output: *goz.Request
+	// Output: *goCurl.Request
 }
