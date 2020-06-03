@@ -1,6 +1,6 @@
 # goCurl
 
-- 基于goz改造，感谢goz（github.com/idoubi/goz.git）原作者提供了大量、优质的基础代码
+- 基于goCurl改造，感谢goCurl（github.com/idoubi/goCurl.git）原作者提供了大量、优质的基础代码
 - 相比原版变化：
 >   1.增加了文件下载功能  
 >   2.GetBody() 返回io.ReaderCloser ,而不是原版本中的文本格式数据。  
@@ -34,7 +34,7 @@ import (
 )
 
 func main() {
-    cli := goz.NewClient()
+    cli := goCurl.NewClient()
 
 	resp, err := cli.Get("http://127.0.0.1:8091/get")
 	if err != nil {
@@ -42,7 +42,7 @@ func main() {
 	}
 
 	fmt.Printf("%T", resp)
-	// Output: *goz.Response
+	// Output: *goCurl.Response
 }
 ```
 
@@ -52,9 +52,9 @@ func main() {
 
 ```go
 func ExampleRequest_Get_withQuery_arr() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
-	resp, err := cli.Get("http://127.0.0.1:8091/get-with-query", goz.Options{
+	resp, err := cli.Get("http://127.0.0.1:8091/get-with-query", goCurl.Options{
 		Query: map[string]interface{}{
 			"key1": 123,
 			"key2": []string{"value21", "value22"},
@@ -73,9 +73,9 @@ func ExampleRequest_Get_withQuery_arr() {
 - query string
 
 ```go
-cli := goz.NewClient()
+cli := goCurl.NewClient()
 
-resp, err := cli.Get("http://127.0.0.1:8091/get-with-query?key0=value0", goz.Options{
+resp, err := cli.Get("http://127.0.0.1:8091/get-with-query?key0=value0", goCurl.Options{
     Query: "key1=value1&key2=value21&key2=value22&key3=333",
 })
 if err != nil {
@@ -92,9 +92,9 @@ fmt.Printf("%s", resp.GetRequest().URL.RawQuery)
 
 ```go
 func ExampleRequest_Post_withFormParams() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
-	resp, err := cli.Post("http://127.0.0.1:8091/post-with-form-params", goz.Options{
+	resp, err := cli.Post("http://127.0.0.1:8091/post-with-form-params", goCurl.Options{
 		Headers: map[string]interface{}{
 			"Content-Type": "application/x-www-form-urlencoded",
 		},
@@ -119,9 +119,9 @@ func ExampleRequest_Post_withFormParams() {
 
 ```go
 func ExampleRequest_Post_withJSON() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
-	resp, err := cli.Post("http://127.0.0.1:8091/post-with-json", goz.Options{
+	resp, err := cli.Post("http://127.0.0.1:8091/post-with-json", goCurl.Options{
 		Headers: map[string]interface{}{
 			"Content-Type": "application/json",
 		},
@@ -145,9 +145,9 @@ func ExampleRequest_Post_withJSON() {
 ## Request Headers 
 
 ```go
-cli := goz.NewClient()
+cli := goCurl.NewClient()
 
-resp, err := cli.Post("http://127.0.0.1:8091/post-with-headers", goz.Options{
+resp, err := cli.Post("http://127.0.0.1:8091/post-with-headers", goCurl.Options{
     Headers: map[string]interface{}{
         "User-Agent": "testing/1.0",
         "Accept":     "application/json",
@@ -166,7 +166,7 @@ fmt.Println(headers)
 ## Response 
 
 ```go
-cli := goz.NewClient()
+cli := goCurl.NewClient()
 resp, err := cli.Get("http://127.0.0.1:8091/get")
 if err != nil {
     log.Fatalln(err)
@@ -177,7 +177,7 @@ if err != nil {
     log.Fatalln(err)
 }
 fmt.Printf("%T", body)
-// Output: goz.ResponseBody
+// Output: goCurl.ResponseBody
 
 part := body.Read(30)
 fmt.Printf("%T", part)
@@ -213,9 +213,9 @@ fmt.Printf("%T", headerLine)
 ## Proxy
 
 ```go
-cli := goz.NewClient()
+cli := goCurl.NewClient()
 
-resp, err := cli.Get("https://www.fbisb.com/ip.php", goz.Options{
+resp, err := cli.Get("https://www.fbisb.com/ip.php", goCurl.Options{
     Timeout: 5.0,
     Proxy:   "http://127.0.0.1:1087",
 })
@@ -230,7 +230,7 @@ fmt.Println(resp.GetStatusCode())
 ## Timeout 
 
 ```go
-cli := goz.NewClient(goz.Options{
+cli := goCurl.NewClient(goCurl.Options{
     Timeout: 0.9,
 })
 resp, err := cli.Get("http://127.0.0.1:8091/get-timeout")
@@ -249,9 +249,9 @@ fmt.Println("not timeout")
 
 ```go
 func ExampleRequest_Down() {
-	cli := goz.NewClient()
+	cli := goCurl.NewClient()
 
-	res := cli.Down("http://139.196.101.31:2080/GinSkeleton.jpg", "F:/2020_project/go/goz/examples/", goz.Options{
+	res := cli.Down("http://139.196.101.31:2080/GinSkeleton.jpg", "F:/2020_project/go/goCurl/examples/", goCurl.Options{
 		Timeout: 5.0,
 	})
 	fmt.Printf("%t", res)
