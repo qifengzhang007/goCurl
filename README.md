@@ -30,7 +30,7 @@ https://github.com/qifengzhang007/goCurl.git
 package main
 
 import (
-    "github.com/qifengzhang007/goz"
+    "github.com/qifengzhang007/goCurl"
 )
 
 func main() {
