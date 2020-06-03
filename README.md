@@ -21,7 +21,7 @@ go get -u github.com/qifengzhang007/goCurl
 ## Documentation
 
 API 文档地址:
-https://github.com/qifengzhang007/goz.git
+https://github.com/qifengzhang007/goCurl.git
 
 
 ## Basic Usage
