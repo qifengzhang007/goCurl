@@ -12,7 +12,8 @@ func ExampleRequest_Get() {
 	cli := goCurl.NewClient()
 
 	//resp, err := cli.Get("http://127.0.0.1:8091/get")
-	resp, err := cli.Get("http://hq.sinajs.cn/list=sz002307,sh600928,sh603101,sz002547")
+	resp, err := cli.Get("https://finance.sina.com.cn/realstock/company/sz002614/nc.shtml")
+	//resp, err := cli.Get("http://www.10jqka.com.cn/")
 	//resp, err := cli.Get("http://www.zhenai.com/")
 	if err != nil {
 		log.Fatalln(err)

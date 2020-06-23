@@ -35,10 +35,10 @@ func (r *Response) GetContents() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if strings.Contains(strings.ToLower(temp), "charset=gb") {
-		bodystr = simpleChinese2Utf8(body)
-	} else {
+	if strings.Contains(strings.ToLower(temp), "charset=utf") {
 		bodystr = string(body)
+	} else {
+		bodystr = simpleChinese2Utf8(body)
 	}
 
 	return bodystr, nil
