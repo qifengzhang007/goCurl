@@ -6,14 +6,34 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"net/http/cookiejar"
 	"strings"
 )
 
 // Response response object
 type Response struct {
-	resp *http.Response
-	req  *http.Request
-	err  error
+	resp       *http.Response
+	req        *http.Request
+	cookiesJar *cookiejar.Jar
+	err        error
+}
+
+// GetCookies, 获取服务端生成的全部cookies
+func (r *Response) GetCookies() []*http.Cookie {
+	return r.cookiesJar.Cookies(r.req.URL)
+}
+
+// GetCookie, 通过键获取相关的cookie值
+func (r *Response) GetCookie(cookie_name string) *http.Cookie {
+	cookies := r.cookiesJar.Cookies(r.req.URL)
+	if len(cookies) > 0 {
+		for i := 0; i < len(cookies); i++ {
+			if cookies[i].Name == cookie_name {
+				return cookies[i]
+			}
+		}
+	}
+	return nil
 }
 
 // GetRequest get request object

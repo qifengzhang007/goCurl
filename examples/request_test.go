@@ -8,6 +8,20 @@ import (
 	"net/http"
 )
 
+func ExampleRequest_GetCookies() {
+	cli := goCurl.NewClient()
+	resp, err := cli.Get("http://www.iwencai.com/diag/block-detail?pid=10751&codes=600422&codeType=stock&info={\"view\":{\"nolazy\":1}}")
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	//fmt.Printf("%#+v\n", resp.GetCookies())
+	fmt.Printf("%T", resp.GetCookie("vvvv"))
+	// Output: *http.Cookie
+
+}
+
 func ExampleRequest_Get() {
 	cli := goCurl.NewClient()
 

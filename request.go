@@ -10,6 +10,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"os"
 	"path"
@@ -19,10 +20,11 @@ import (
 
 // Request object
 type Request struct {
-	opts Options
-	cli  *http.Client
-	req  *http.Request
-	body io.Reader
+	opts       Options
+	cli        *http.Client
+	req        *http.Request
+	body       io.Reader
+	cookiesJar *cookiejar.Jar
 }
 
 // Get send get request
@@ -116,6 +118,7 @@ func (r *Request) Options(uri string, opts ...Options) (*Response, error) {
 
 // Request send request
 func (r *Request) Request(method, uri string, opts ...Options) (*Response, error) {
+
 	r.opts = mergeHeaders(defaultHeader(), opts...)
 	switch method {
 	case http.MethodGet, http.MethodDelete:
@@ -156,14 +159,16 @@ func (r *Request) Request(method, uri string, opts ...Options) (*Response, error
 
 	_resp, err := r.cli.Do(r.req)
 	resp := &Response{
-		resp: _resp,
-		req:  r.req,
-		err:  err,
+		resp:       _resp,
+		req:        r.req,
+		cookiesJar: r.cookiesJar,
+		err:        err,
 	}
 
 	if err != nil {
 		return resp, err
 	}
+
 	return resp, nil
 }
 
@@ -190,6 +195,7 @@ func (r *Request) parseClient() {
 	r.cli = &http.Client{
 		Timeout:   r.opts.timeout,
 		Transport: tr,
+		Jar:       r.cookiesJar,
 	}
 }
 

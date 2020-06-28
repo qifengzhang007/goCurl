@@ -3,16 +3,25 @@ package goCurl
 import (
 	"fmt"
 	"github.com/axgle/mahonia"
+	"net/http"
+	"net/http/cookiejar"
 )
+
+//var CurSiteCookiesJar *cookiejar.Jar;
 
 // NewClient new request object
 func NewClient(opts ...Options) *Request {
-	req := &Request{}
+	curSiteCookiesJar, _ := cookiejar.New(nil)
+	req := &Request{
+		cli: &http.Client{
+			Jar: curSiteCookiesJar,
+		},
+	}
 
 	if len(opts) > 0 {
 		req.opts = mergeHeaders(defaultHeader(), opts[0])
 	}
-
+	req.cookiesJar = curSiteCookiesJar
 	return req
 }
 
