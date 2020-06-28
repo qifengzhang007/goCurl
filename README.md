@@ -10,6 +10,7 @@
 >   6.增强原版本中表单参数只能传递string、[]string的问题，该版本支持数字、文本、[]string等。  
 >   7.增加请求时浏览器自带的默认参数，完全模拟浏览器发送数据。  
 >   8.增加被请求的网站数据编码自动转换功能（采集网站时不需要考虑对方是站点的编码类型，gbk系列、utf8全程自动转换）。  
+>   9.增加获取服务端设置的cookie功能。    
 
 ## Installation
 
@@ -256,6 +257,24 @@ func ExampleRequest_Down() {
 	})
 	fmt.Printf("%t", res)
 	// Output: true
+}
+```
+
+## GetCookies、GetCookie
+> 获取服务端设置的cookie信息，注意：这里的获取的cookie仅限于服务端语言（php、go等）设置的cookie，如果浏览器的cookie是js生成的，则无法获取。  
+> 因为go的客户端请求到的是网页返回值，如果网页返回了js代码，对于浏览器就会运行，可能生成cookie，但是go的curl客户端默认无法运行js，因此获取不到js生成的cookie。         
+
+```go  
+cli := goCurl.NewClient()
+	resp, err := cli.Get("http://www.iwencai.com/diag/block-detail?pid=10751&codes=600422&codeType=stock&info={\"view\":{\"nolazy\":1}}")
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	//fmt.Printf("%#+v\n", resp.GetCookies())   //  返回所有的cookie，数据类型为： []*http.cookie
+	fmt.Printf("%T", resp.GetCookie("vvvv"))   //  根据cookie名称获取一条记录，数据类型 *http.cookie
+
 }
 ```
 
