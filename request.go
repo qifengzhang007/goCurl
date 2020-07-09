@@ -33,23 +33,27 @@ func (r *Request) Get(uri string, opts ...Options) (*Response, error) {
 }
 
 // Get method  download files
-func (r *Request) Down(resource_url string, sava_path string, opts ...Options) bool {
+func (r *Request) Down(resource_url, sava_path, save_name string, opts ...Options) bool {
 	uri, err := url.ParseRequestURI(resource_url)
 	if err != nil {
-		log.Panic("网址无法访问:" + err.Error())
+		log.Println("网址无法访问:" + err.Error())
 		return false
 	}
 
 	if resp, err := r.Request("GET", resource_url, opts...); err == nil {
 		filename := path.Base(uri.Path)
+		if len(save_name) > 0 {
+			filename = save_name
+		}
+
 		if resp.GetContentLength() > 0 {
 			body := resp.GetBody()
 			return r.saveFile(body, sava_path+filename)
 		} else {
-			log.Panic("被下载的文件内容为空")
+			log.Println("被下载的文件内容为空")
 		}
 	} else {
-		log.Panic(err.Error())
+		log.Println(err.Error())
 	}
 	return false
 }
@@ -60,7 +64,7 @@ func (r *Request) saveFile(body io.ReadCloser, file_name string) bool {
 	reader := bufio.NewReaderSize(body, 1024*50) //相当于一个临时缓冲区(设置为可以单次存储5M的文件)，每次读取以后就把原始数据重新加载一份，等待下一次读取
 	file, err := os.OpenFile(file_name, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
-		log.Panic("创建镜像文件失败，无法进行后续的写入操作" + err.Error())
+		log.Println("创建镜像文件失败，无法进行后续的写入操作" + err.Error())
 		is_occur_error = true
 	}
 	writer := bufio.NewWriter(file)
@@ -71,7 +75,7 @@ func (r *Request) saveFile(body io.ReadCloser, file_name string) bool {
 		if curr_read_size > 0 {
 			write_size, write_err := writer.Write(buff[0:curr_read_size])
 			if write_err != nil {
-				log.Panic("写入发生错误"+write_err.Error(), "写入长度：", write_size)
+				log.Println("写入发生错误"+write_err.Error(), "写入长度：", write_size)
 				is_occur_error = true
 				break
 			}

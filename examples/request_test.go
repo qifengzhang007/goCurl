@@ -40,7 +40,7 @@ func ExampleRequest_Get() {
 func ExampleRequest_Down() {
 	cli := goCurl.NewClient()
 
-	res := cli.Down("http://139.196.101.31:2080/GinSkeleton.jpg", "F:/2020_project/go/goz/examples/", goCurl.Options{
+	res := cli.Down("http://139.196.101.31:2080/GinSkeleton.jpg", "F:/2020_project/go/goz/examples/", "", goCurl.Options{
 		Timeout: 5.0,
 	})
 	fmt.Printf("%t", res)
