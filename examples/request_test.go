@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"testing"
 )
 
 func ExampleRequest_GetCookies() {
@@ -16,7 +17,7 @@ func ExampleRequest_GetCookies() {
 		log.Fatalln(err)
 	}
 
-	//fmt.Printf("%#+v\n", resp.GetCookies())
+	fmt.Printf("%#+v\n", resp.GetCookies())
 	fmt.Printf("%T", resp.GetCookie("vvvv"))
 	// Output: *http.Cookie
 
@@ -37,14 +38,16 @@ func ExampleRequest_Get() {
 
 }
 
-func ExampleRequest_Down() {
+func TestRequest_Down(t *testing.T) {
 	cli := goCurl.NewClient()
-
-	res := cli.Down("http://139.196.101.31:2080/GinSkeleton.jpg", "F:/2020_project/go/goz/examples/", goCurl.Options{
-		Timeout: 5.0,
+	_, err := cli.Down("http://139.196.101.31:2080/GinSkeleton.jpg", "E:/project2020/goCurl/examples/", "ginskeleton.jpg", goCurl.Options{
+		Timeout: 60.0,
 	})
-	fmt.Printf("%t", res)
-	// Output: true
+	if err == nil {
+		t.Log("单元测试通过")
+	} else {
+		t.Errorf("单元测试失败,文件下载失败，相关错误：%s", err.Error())
+	}
 }
 
 func ExampleRequest_Get_withQuery_arr() {

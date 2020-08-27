@@ -24,11 +24,11 @@ func (r *Response) GetCookies() []*http.Cookie {
 }
 
 // GetCookie, 通过键获取相关的cookie值
-func (r *Response) GetCookie(cookie_name string) *http.Cookie {
+func (r *Response) GetCookie(cookieName string) *http.Cookie {
 	cookies := r.cookiesJar.Cookies(r.req.URL)
 	if len(cookies) > 0 {
 		for i := 0; i < len(cookies); i++ {
-			if cookies[i].Name == cookie_name {
+			if cookies[i].Name == cookieName {
 				return cookies[i]
 			}
 		}
@@ -48,7 +48,9 @@ func (r *Response) GetResponse() *http.Response {
 
 // GetBody parse response body
 func (r *Response) GetContents() (string, error) {
-	defer r.resp.Body.Close()
+	defer func() {
+		_ = r.resp.Body.Close()
+	}()
 	temp := fmt.Sprintf("%v", r.resp.Header["Content-Type"])
 	var bodystr string
 	body, err := ioutil.ReadAll(r.resp.Body)

@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -33,60 +32,62 @@ func (r *Request) Get(uri string, opts ...Options) (*Response, error) {
 }
 
 // Get method  download files
-func (r *Request) Down(resource_url string, sava_path string, opts ...Options) bool {
-	uri, err := url.ParseRequestURI(resource_url)
+func (r *Request) Down(resourceUrl string, savePath, saveName string, opts ...Options) (bool, error) {
+	var vError error
+	var vResponse *Response
+	uri, err := url.ParseRequestURI(resourceUrl)
 	if err != nil {
-		log.Panic("网址无法访问:" + err.Error())
-		return false
+		return false, err
 	}
-
-	if resp, err := r.Request("GET", resource_url, opts...); err == nil {
+	if vResponse, vError = r.Request("GET", resourceUrl, opts...); vError == nil {
 		filename := path.Base(uri.Path)
-		if resp.GetContentLength() > 0 {
-			body := resp.GetBody()
-			return r.saveFile(body, sava_path+filename)
-		} else {
-			log.Panic("被下载的文件内容为空")
+		if len(saveName) > 0 {
+			filename = saveName
 		}
-	} else {
-		log.Panic(err.Error())
+		if vResponse.GetContentLength() > 0 {
+			body := vResponse.GetBody()
+			return r.saveFile(body, savePath+filename)
+		} else {
+			return false, errors.New("被下载的文件内容为空")
+		}
 	}
-	return false
+	return false, vError
 }
 
-func (r *Request) saveFile(body io.ReadCloser, file_name string) bool {
-	var is_occur_error bool
-	defer body.Close()
+func (r *Request) saveFile(body io.ReadCloser, fileName string) (bool, error) {
+	var isOccurError bool
+	var OccurError error
+	defer func() {
+		_ = body.Close()
+	}()
 	reader := bufio.NewReaderSize(body, 1024*50) //相当于一个临时缓冲区(设置为可以单次存储5M的文件)，每次读取以后就把原始数据重新加载一份，等待下一次读取
-	file, err := os.OpenFile(file_name, os.O_WRONLY|os.O_CREATE, 0666)
+	file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
-		log.Panic("创建镜像文件失败，无法进行后续的写入操作" + err.Error())
-		is_occur_error = true
+		return false, err
 	}
 	writer := bufio.NewWriter(file)
 	buff := make([]byte, 50*1024)
 
 	for {
-		curr_read_size, reader_err := reader.Read(buff)
-		if curr_read_size > 0 {
-			write_size, write_err := writer.Write(buff[0:curr_read_size])
-			if write_err != nil {
-				log.Panic("写入发生错误"+write_err.Error(), "写入长度：", write_size)
-				is_occur_error = true
+		currReadSize, readerErr := reader.Read(buff)
+		if currReadSize > 0 {
+			_, OccurError = writer.Write(buff[0:currReadSize])
+			if OccurError != nil {
+				isOccurError = true
 				break
 			}
 		}
 		// 读取结束
-		if reader_err == io.EOF {
-			writer.Flush()
+		if readerErr == io.EOF {
+			_ = writer.Flush()
 			break
 		}
 	}
 	// 如果没有发生错误，就返回 true
-	if is_occur_error == false {
-		return true
+	if isOccurError == false {
+		return true, nil
 	} else {
-		return false
+		return false, OccurError
 	}
 
 }

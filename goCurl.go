@@ -26,11 +26,11 @@ func NewClient(opts ...Options) *Request {
 }
 
 // 合并用户提供的header头字段信息，用户提供的header头优先于默认头字段信息
-func mergeHeaders(default_headers Options, options ...Options) Options {
+func mergeHeaders(defaultHeaders Options, options ...Options) Options {
 	if len(options) == 0 {
 		return defaultHeader()
 	} else {
-		for key, value := range default_headers.Headers {
+		for key, value := range defaultHeaders.Headers {
 			if options[0].Headers != nil {
 				if _, exists := options[0].Headers[key]; !exists {
 					options[0].Headers[key] = fmt.Sprintf("%v", value)
@@ -63,6 +63,6 @@ func defaultHeader() Options {
 }
 
 // 编码转换，中文编码转码
-func simpleChinese2Utf8(v_bytes []byte) string {
-	return mahonia.NewDecoder("GB18030").ConvertString(string(v_bytes))
+func simpleChinese2Utf8(vBytes []byte) string {
+	return mahonia.NewDecoder("GB18030").ConvertString(string(vBytes))
 }
