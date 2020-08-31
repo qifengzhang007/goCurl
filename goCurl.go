@@ -52,7 +52,7 @@ func defaultHeader() Options {
 			"Accept":     "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
 			//	特别提醒：真实的浏览器该值为 Accept-Encoding: gzip, deflate，表示浏览器接受压缩后的二进制，浏览器端再解析为html展示，
 			//	但是HttpClient解析就麻烦了，所以必须为空或者不设置该值，接受原始数据。否则很容易出现乱码
-			//"Content-Type":           "application/x-www-form-urlencoded;charset=utf-8",
+			"Content-Type":              "application/x-www-form-urlencoded;charset=utf-8",
 			"Accept-Encoding":           "",
 			"Accept-Language":           "zh-CN,zh;q=0.9",
 			"Upgrade-Insecure-Requests": "1",
