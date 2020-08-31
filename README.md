@@ -11,6 +11,7 @@
 >   7.增加请求时浏览器自带的默认参数，完全模拟浏览器发送数据。  
 >   8.增加被请求的网站数据编码自动转换功能（采集网站时不需要考虑对方是站点的编码类型，gbk系列、utf8全程自动转换）。  
 >   9.增加获取服务端设置的cookie功能。    
+>   10.增强get请求，参数支持 FormParams 传递.    
 
 ## Installation
 
@@ -35,7 +36,7 @@ import (
 )
 
 func main() {
-    cli := goCurl.NewClient()
+    cli := goCurl.CreateCurlClient()
 
 	resp, err := cli.Get("http://127.0.0.1:8091/get")
 	if err != nil {
@@ -53,7 +54,7 @@ func main() {
 
 ```go
 func ExampleRequest_Get_withQuery_arr() {
-	cli := goCurl.NewClient()
+	cli := goCurl.CreateCurlClient()
 
 	resp, err := cli.Get("http://127.0.0.1:8091/get-with-query", goCurl.Options{
 		Query: map[string]interface{}{
@@ -74,7 +75,7 @@ func ExampleRequest_Get_withQuery_arr() {
 - query string
 
 ```go
-cli := goCurl.NewClient()
+cli := goCurl.CreateCurlClient()
 
 resp, err := cli.Get("http://127.0.0.1:8091/get-with-query?key0=value0", goCurl.Options{
     Query: "key1=value1&key2=value21&key2=value22&key3=333",
@@ -93,7 +94,7 @@ fmt.Printf("%s", resp.GetRequest().URL.RawQuery)
 
 ```go
 func ExampleRequest_Post_withFormParams() {
-	cli := goCurl.NewClient()
+	cli := goCurl.CreateCurlClient()
 
 	resp, err := cli.Post("http://127.0.0.1:8091/post-with-form-params", goCurl.Options{
 		Headers: map[string]interface{}{
@@ -120,7 +121,7 @@ func ExampleRequest_Post_withFormParams() {
 
 ```go
 func ExampleRequest_Post_withJSON() {
-	cli := goCurl.NewClient()
+	cli := goCurl.CreateCurlClient()
 
 	resp, err := cli.Post("http://127.0.0.1:8091/post-with-json", goCurl.Options{
 		Headers: map[string]interface{}{
@@ -146,7 +147,7 @@ func ExampleRequest_Post_withJSON() {
 ## Request Headers 
 
 ```go
-cli := goCurl.NewClient()
+cli := goCurl.CreateCurlClient()
 
 resp, err := cli.Post("http://127.0.0.1:8091/post-with-headers", goCurl.Options{
     Headers: map[string]interface{}{
@@ -167,7 +168,7 @@ fmt.Println(headers)
 ## Response 
 
 ```go
-cli := goCurl.NewClient()
+cli := goCurl.CreateCurlClient()
 resp, err := cli.Get("http://127.0.0.1:8091/get")
 if err != nil {
     log.Fatalln(err)
@@ -214,7 +215,7 @@ fmt.Printf("%T", headerLine)
 ## Proxy
 
 ```go
-cli := goCurl.NewClient()
+cli := goCurl.CreateCurlClient()
 
 resp, err := cli.Get("https://www.fbisb.com/ip.php", goCurl.Options{
     Timeout: 5.0,
@@ -231,7 +232,7 @@ fmt.Println(resp.GetStatusCode())
 ## Timeout 
 
 ```go
-cli := goCurl.NewClient(goCurl.Options{
+cli := goCurl.CreateCurlClient(goCurl.Options{
     Timeout: 0.9,
 })
 resp, err := cli.Get("http://127.0.0.1:8091/get-timeout")
@@ -250,7 +251,7 @@ fmt.Println("not timeout")
 
 ```go
 func ExampleRequest_Down() {
-	cli := goCurl.NewClient()
+	cli := goCurl.CreateCurlClient()
 
 	res := cli.Down("http://139.196.101.31:2080/GinSkeleton.jpg", "F:/2020_project/go/goCurl/examples/", goCurl.Options{
 		Timeout: 5.0,
@@ -265,7 +266,7 @@ func ExampleRequest_Down() {
 > 因为go的客户端请求到的是网页返回值，如果网页返回了js代码，对于浏览器就会运行，可能生成cookie，但是go的curl客户端默认无法运行js，因此获取不到js生成的cookie。         
 
 ```go  
-cli := goCurl.NewClient()
+cli := goCurl.CreateCurlClient()
 	resp, err := cli.Get("http://www.iwencai.com/diag/block-detail?pid=10751&codes=600422&codeType=stock&info={\"view\":{\"nolazy\":1}}")
 
 	if err != nil {

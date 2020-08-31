@@ -82,8 +82,9 @@ func postWithFormParams(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	params, _ := json.Marshal(r.Form)
+	w.Write(params)
 
-	fmt.Fprintf(w, "form params:%s", params)
+	//fmt.Fprintf(w, "form params:%s", params)
 }
 
 func postWithJSON(w http.ResponseWriter, r *http.Request) {

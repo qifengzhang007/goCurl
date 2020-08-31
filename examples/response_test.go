@@ -7,7 +7,7 @@ import (
 )
 
 func ExampleResponse_GetBody() {
-	cli := goCurl.NewClient()
+	cli := goCurl.CreateCurlClient()
 	resp, err := cli.Get("http://127.0.0.1:8091/get")
 	if err != nil {
 		log.Fatalln(err)
@@ -23,7 +23,7 @@ func ExampleResponse_GetBody() {
 }
 
 func ExampleResponseBody_GetContents() {
-	cli := goCurl.NewClient()
+	cli := goCurl.CreateCurlClient()
 	resp, err := cli.Get("http://127.0.0.1:8091/get")
 	if err != nil {
 		log.Fatalln(err)
@@ -39,7 +39,7 @@ func ExampleResponseBody_GetContents() {
 }
 
 func ExampleResponse_GetStatusCode() {
-	cli := goCurl.NewClient()
+	cli := goCurl.CreateCurlClient()
 	resp, err := cli.Get("http://127.0.0.1:8091/get")
 	if err != nil {
 		log.Fatalln(err)
@@ -50,7 +50,7 @@ func ExampleResponse_GetStatusCode() {
 }
 
 func ExampleResponse_GetReasonPhrase() {
-	cli := goCurl.NewClient()
+	cli := goCurl.CreateCurlClient()
 	resp, err := cli.Get("http://127.0.0.1:8091/get")
 	if err != nil {
 		log.Fatalln(err)
@@ -61,7 +61,7 @@ func ExampleResponse_GetReasonPhrase() {
 }
 
 func ExampleResponse_GetHeaders() {
-	cli := goCurl.NewClient()
+	cli := goCurl.CreateCurlClient()
 	resp, err := cli.Get("http://127.0.0.1:8091/get")
 	if err != nil {
 		log.Fatalln(err)
@@ -73,7 +73,7 @@ func ExampleResponse_GetHeaders() {
 }
 
 func ExampleResponse_HasHeader() {
-	cli := goCurl.NewClient()
+	cli := goCurl.CreateCurlClient()
 	resp, err := cli.Get("http://127.0.0.1:8091/get")
 	if err != nil {
 		log.Fatalln(err)
@@ -85,7 +85,7 @@ func ExampleResponse_HasHeader() {
 }
 
 func ExampleResponse_GetHeader() {
-	cli := goCurl.NewClient()
+	cli := goCurl.CreateCurlClient()
 	resp, err := cli.Get("http://127.0.0.1:8091/get")
 	if err != nil {
 		log.Fatalln(err)
@@ -97,7 +97,7 @@ func ExampleResponse_GetHeader() {
 }
 
 func ExampleResponse_GetHeaderLine() {
-	cli := goCurl.NewClient()
+	cli := goCurl.CreateCurlClient()
 	resp, err := cli.Get("http://127.0.0.1:8091/get")
 	if err != nil {
 		log.Fatalln(err)
@@ -109,7 +109,7 @@ func ExampleResponse_GetHeaderLine() {
 }
 
 func ExampleResponse_IsTimeout() {
-	cli := goCurl.NewClient(goCurl.Options{
+	cli := goCurl.CreateCurlClient(goCurl.Options{
 		Timeout: 0.9,
 	})
 	resp, err := cli.Get("http://127.0.0.1:8091/get-timeout")

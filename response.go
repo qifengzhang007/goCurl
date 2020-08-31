@@ -51,7 +51,7 @@ func (r *Response) GetContents() (string, error) {
 	defer func() {
 		_ = r.resp.Body.Close()
 	}()
-	temp := fmt.Sprintf("%v", r.resp.Header["Content-Type"])
+	temp := strings.ReplaceAll(fmt.Sprintf("%v", r.resp.Header["Content-Type"]), " ", "")
 	var bodystr string
 	body, err := ioutil.ReadAll(r.resp.Body)
 	if err != nil {

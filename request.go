@@ -19,11 +19,12 @@ import (
 
 // Request object
 type Request struct {
-	opts       Options
-	cli        *http.Client
-	req        *http.Request
-	body       io.Reader
-	cookiesJar *cookiejar.Jar
+	opts                 Options
+	cli                  *http.Client
+	req                  *http.Request
+	body                 io.Reader
+	subGetFormDataParmas string
+	cookiesJar           *cookiejar.Jar
 }
 
 // Get send get request
@@ -123,6 +124,7 @@ func (r *Request) Request(method, uri string, opts ...Options) (*Response, error
 	r.opts = mergeHeaders(defaultHeader(), opts...)
 	switch method {
 	case http.MethodGet, http.MethodDelete:
+		uri = uri + r.parseGetFormData()
 		req, err := http.NewRequest(method, uri, nil)
 		if err != nil {
 			return nil, err
@@ -287,4 +289,25 @@ func (r *Request) parseBody() {
 	}
 
 	return
+}
+
+// 解析 get 方式传递的 formData(application/x-www-form-urlencoded)
+func (r *Request) parseGetFormData() string {
+	if r.opts.FormParams != nil {
+		values := url.Values{}
+		for k, v := range r.opts.FormParams {
+			if vv, ok := v.([]string); ok {
+				for _, vvv := range vv {
+					values.Add(k, vvv)
+				}
+				continue
+			}
+			vv := fmt.Sprintf("%v", v)
+			values.Set(k, vv)
+		}
+		r.subGetFormDataParmas = values.Encode()
+		return "?" + r.subGetFormDataParmas
+	} else {
+		return ""
+	}
 }
