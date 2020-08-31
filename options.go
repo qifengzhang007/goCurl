@@ -6,7 +6,6 @@ import "time"
 type Options struct {
 	Headers    map[string]interface{}
 	BaseURI    string
-	Query      interface{}
 	FormParams map[string]interface{}
 	JSON       interface{}
 	Timeout    float32

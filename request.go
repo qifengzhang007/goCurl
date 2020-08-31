@@ -151,9 +151,6 @@ func (r *Request) Request(method, uri string, opts ...Options) (*Response, error
 	// parseClient
 	r.parseClient()
 
-	// parse query
-	r.parseQuery()
-
 	// parse headers
 	r.parseHeaders()
 
@@ -192,6 +189,8 @@ func (r *Request) parseClient() {
 		proxy, err := url.Parse(r.opts.Proxy)
 		if err == nil {
 			tr.Proxy = http.ProxyURL(proxy)
+		} else {
+			fmt.Println(r.opts.Proxy+"代理设置错误：", err.Error())
 		}
 	}
 
@@ -199,27 +198,6 @@ func (r *Request) parseClient() {
 		Timeout:   r.opts.timeout,
 		Transport: tr,
 		Jar:       r.cookiesJar,
-	}
-}
-
-func (r *Request) parseQuery() {
-	switch r.opts.Query.(type) {
-	case string:
-		str := r.opts.Query.(string)
-		r.req.URL.RawQuery = str
-	case map[string]interface{}:
-		q := r.req.URL.Query()
-		for k, v := range r.opts.Query.(map[string]interface{}) {
-			if vv, ok := v.([]string); ok {
-				for _, vvv := range vv {
-					q.Add(k, vvv)
-				}
-				continue
-			}
-			vv := fmt.Sprintf("%v", v)
-			q.Set(k, vv)
-		}
-		r.req.URL.RawQuery = q.Encode()
 	}
 }
 
