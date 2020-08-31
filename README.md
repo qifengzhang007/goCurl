@@ -34,8 +34,10 @@
 	resp, err := cli.Get("http://hq.sinajs.cn/list=sh601006")
 	if err != nil  && resp==nil{
 		t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
-	}
+	}else{
 	txt, err := resp.GetContents()
+    }
+
 
 ```
 ## 使用详情测试用例  
