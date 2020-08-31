@@ -38,7 +38,6 @@
 	txt, err := resp.GetContents()
     }
 
-
 ```
 ## 使用详情测试用例  
 [测试用例文档](./test/request_test.go)  
