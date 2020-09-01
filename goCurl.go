@@ -9,8 +9,8 @@ import (
 
 //var CurSiteCookiesJar *cookiejar.Jar;
 
-// CreateCurlClient new request object
-func CreateCurlClient(opts ...Options) *Request {
+// CreateHttpClient new request object
+func CreateHttpClient(opts ...Options) *Request {
 	curSiteCookiesJar, _ := cookiejar.New(nil)
 	req := &Request{
 		cli: &http.Client{

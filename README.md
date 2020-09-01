@@ -16,7 +16,7 @@
 ## 快速入门  
 ```code
     // step 1 :  创建 curl 客户端
-	cli := goCurl.CreateCurlClient()
+	cli := goCurl.CreateHttpClient()
 
     // step 2 ： 设置请求参数选项(非必选参数)
     type Options struct {
@@ -78,7 +78,7 @@ func TestSpiderStock(t *testing.T){
 		}else{
 			tmpUri=StockUri+"sz"+stockCode
 		}
-		httpClient:=goCurl.CreateCurlClient()
+		httpClient:=goCurl.CreateHttpClient()
 			if response,err:=httpClient.Get(tmpUri);err==nil{
 				//将结果的处理拆分为独立的函数，保持采集逻辑简洁
 				if content,err:=response.GetContents();err==nil{

@@ -10,7 +10,7 @@ import (
 //  get 网站编码为 gbk
 // 主要测试 get 请求以及自动转换被采集网站的编码，保证返回的数据是正常的
 func TestRequest_Get(t *testing.T) {
-	cli := goCurl.CreateCurlClient()
+	cli := goCurl.CreateHttpClient()
 	resp, err := cli.Get("http://hq.sinajs.cn/list=sh601006")
 	if err != nil && resp == nil {
 		t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
@@ -31,7 +31,7 @@ func TestRequest_Get(t *testing.T) {
 //  get请求参数如果不是特别长，建议和地址拼接在一起请求,例如： https://www.oschina.net/search?scope=project&q=golang
 //  如果参数比较长，您也可以按照表单参数方式提交
 func TestRequest_Get_withQuery_arr(t *testing.T) {
-	cli := goCurl.CreateCurlClient()
+	cli := goCurl.CreateHttpClient()
 	//  cli.Get 切换成 cli.Post 就是 post 方式提交表单参数
 	resp, err := cli.Get("https://www.oschina.net/search", goCurl.Options{
 		FormParams: map[string]interface{}{
@@ -56,7 +56,7 @@ func TestRequest_Get_withQuery_arr(t *testing.T) {
 //  post提交 json 数据
 //  注意：这里的 header 头字段 Content-Type 必须设置为 application/json 格式
 func TestRequest_Post_withJSON(t *testing.T) {
-	cli := goCurl.CreateCurlClient()
+	cli := goCurl.CreateHttpClient()
 
 	resp, err := cli.Post("http://127.0.0.1:8091/post-with-json", goCurl.Options{
 		Headers: map[string]interface{}{
@@ -85,7 +85,7 @@ func TestRequest_Post_withJSON(t *testing.T) {
 // 但是试用之前需要注册注册 [用户名] ,然后将 [用户名]以及您的外网ip添加至白名单才可以试用它们的代理，添加白名单地址：http://120.55.162.147/addlongip?username=用户名&white=需要添加的ip
 
 func TestRequest_Get_withProxy(t *testing.T) {
-	cli := goCurl.CreateCurlClient()
+	cli := goCurl.CreateHttpClient()
 
 	resp, err := cli.Get("http://myip.top/", goCurl.Options{
 		Timeout: 5.0,
@@ -109,7 +109,7 @@ func TestRequest_Get_withProxy(t *testing.T) {
 // 参数二 > 指定下载路径（服务器最好指定绝对路径）
 // 参数三 > 文件名，如果不设置，那么自动使用被下载的原始文件名
 func TestRequest_Down(t *testing.T) {
-	cli := goCurl.CreateCurlClient()
+	cli := goCurl.CreateHttpClient()
 	_, err := cli.Down("http://139.196.101.31:2080/GinSkeleton.jpg", "./", "ginskeleton.jpg", goCurl.Options{
 		Timeout: 60.0,
 	})
@@ -122,7 +122,7 @@ func TestRequest_Down(t *testing.T) {
 
 // 获取 cookie
 func TestRequest_GetCookies(t *testing.T) {
-	cli := goCurl.CreateCurlClient()
+	cli := goCurl.CreateHttpClient()
 	resp, err := cli.Get(`http://www.iwencai.com/diag/block-detail?pid=10751&codes=600422&codeType=stock&info={"view":{"nolazy":1}}`)
 
 	if err != nil {
@@ -140,7 +140,7 @@ func TestRequest_GetCookies(t *testing.T) {
 
 // 提交cookie
 func TestRequest_Post_withCookies_str(t *testing.T) {
-	cli := goCurl.CreateCurlClient()
+	cli := goCurl.CreateHttpClient()
 
 	resp, err := cli.Post("http://127.0.0.1:8091/post-with-cookies", goCurl.Options{
 		Cookies: "cookie1=value1;cookie2=value2",
@@ -159,7 +159,7 @@ func TestRequest_Post_withCookies_str(t *testing.T) {
 
 // 提交cookie（二） , 并从 body 体读取返回值（）
 func TestRequest_Post_withCookies_map(t *testing.T) {
-	cli := goCurl.CreateCurlClient()
+	cli := goCurl.CreateHttpClient()
 
 	resp, err := cli.Post("http://127.0.0.1:8091/post-with-cookies", goCurl.Options{
 		Cookies: map[string]string{
@@ -186,7 +186,7 @@ func TestRequest_Post_withCookies_map(t *testing.T) {
 
 //  Put 方式提交数据
 func TestRequest_Put(t *testing.T) {
-	cli := goCurl.CreateCurlClient()
+	cli := goCurl.CreateHttpClient()
 
 	resp, err := cli.Put("http://127.0.0.1:8091/put")
 	if err != nil {
@@ -203,7 +203,7 @@ func TestRequest_Put(t *testing.T) {
 
 //  Delete方式提交数据
 func TestRequest_Delete(t *testing.T) {
-	cli := goCurl.CreateCurlClient()
+	cli := goCurl.CreateHttpClient()
 
 	resp, err := cli.Delete("http://127.0.0.1:8091/delete")
 	if err != nil {
