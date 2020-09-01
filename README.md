@@ -15,7 +15,7 @@
 
 ## 快速入门  
 ```code
-    // step 1 :  创建 curl 客户端
+    // step 1 :  创建 httpClient 客户端
 	cli := goCurl.CreateHttpClient()
 
     // step 2 ： 设置请求参数选项(非必选参数)
