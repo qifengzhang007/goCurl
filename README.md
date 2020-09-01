@@ -18,7 +18,16 @@
     // step 1 :  创建 httpClient 客户端
 	cli := goCurl.CreateHttpClient()
 
-    // step 2 ： 设置请求参数选项(非必选参数)
+    // step 2 ： 请求并获取结果
+	resp, err := cli.Get("http://hq.sinajs.cn/list=sh601006")
+	if err != nil {
+		t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
+	}else{
+	txt, err := resp.GetContents()
+    }
+
+    // 其他可选参数选项,请结合语法篇理解与使用即可
+    // step 3 ： 设置请求参数选项(非必选参数)
     type Options struct {
         Headers    map[string]interface{}
         BaseURI    string
@@ -28,14 +37,6 @@
         timeout    time.Duration
         Cookies    interface{}
         Proxy      string
-    }
-
-    // step 3 ： 请求并获取结果
-	resp, err := cli.Get("http://hq.sinajs.cn/list=sh601006")
-	if err != nil  && resp==nil{
-		t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
-	}else{
-	txt, err := resp.GetContents()
     }
 
 ```
