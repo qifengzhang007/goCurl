@@ -13,6 +13,13 @@
 >   9.升级get请求,提交表单参数时相关语法规范为与post一致.   
 >   10.从实用主义出发，我们重新编写了使用文档，复制文档中的代码即可快速解决业务问题.    
 
+## 安装 goCurl 包  
+```code 
+
+go  get github.com/qifengzhang007/goCurl@v1.2.4
+
+```
+
 ## 快速入门  
 ```code
     // step 1 :  创建 httpClient 客户端
