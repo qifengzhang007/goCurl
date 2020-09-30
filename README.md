@@ -16,7 +16,7 @@
 ## 安装 goCurl 包  
 ```code 
 
-go  get github.com/qifengzhang007/goCurl@v1.2.4
+go  get github.com/qifengzhang007/goCurl@v1.2.5
 
 ```
 
