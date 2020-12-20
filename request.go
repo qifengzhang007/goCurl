@@ -45,7 +45,7 @@ func (r *Request) Down(resourceUrl string, savePath, saveName string, opts ...Op
 		if len(saveName) > 0 {
 			filename = saveName
 		}
-		if vResponse.GetContentLength() > 0 {
+		if vResponse.GetStatusCode() == 200 || vResponse.GetContentLength() > 0 {
 			body := vResponse.GetBody()
 			return r.saveFile(body, savePath+filename)
 		} else {
