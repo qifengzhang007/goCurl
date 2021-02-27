@@ -58,11 +58,12 @@ func (r *Request) Down(resourceUrl string, savePath, saveName string, opts ...Op
 func (r *Request) saveFile(body io.ReadCloser, fileName string) (bool, error) {
 	var isOccurError bool
 	var OccurError error
+	file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0666)
 	defer func() {
 		_ = body.Close()
+		_ = file.Close()
 	}()
 	reader := bufio.NewReaderSize(body, 1024*50) //相当于一个临时缓冲区(设置为可以单次存储5M的文件)，每次读取以后就把原始数据重新加载一份，等待下一次读取
-	file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return false, err
 	}
@@ -90,7 +91,6 @@ func (r *Request) saveFile(body io.ReadCloser, fileName string) (bool, error) {
 	} else {
 		return false, OccurError
 	}
-
 }
 
 // Post send post request
