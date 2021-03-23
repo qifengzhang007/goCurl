@@ -35,14 +35,43 @@ func TestRequest_Get_withQuery_arr(t *testing.T) {
 	//  cli.Get 切换成 cli.Post 就是 post 方式提交表单参数
 	//resp, err := cli.Post("http://127.0.0.1:8091/postWithFormParams", goCurl.Options{
 	resp, err := cli.Get("https://www.oschina.net/search", goCurl.Options{
+		//resp, err := cli.Get("http://139.196.101.31:2080/test_json.php", goCurl.Options{
 		FormParams: map[string]interface{}{
 			"random": 12345,
 			"scope":  "project",
 			"q":      "golang",
 		},
+		Headers: map[string]interface{}{
+			"Content-Type": "application/x-www-form-urlencoded;charset=gb2312",
+		},
 	})
 	if err != nil {
 		t.Errorf("osChina请求出错：%s\n", err.Error())
+	} else {
+		txt, err := resp.GetContents()
+		if err == nil {
+			t.Logf("请求结果：%s\n", txt)
+		} else {
+			t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
+		}
+	}
+
+}
+
+// GO 语言 UTF8 环境发送 简体中文数据
+func TestRequest_Send_Chinese(t *testing.T) {
+	cli := goCurl.CreateHttpClient()
+	resp, err := cli.Get("http://139.196.101.31:2080/test_json.php", goCurl.Options{
+		FormParams: map[string]interface{}{
+			//"user_name":"你好，该字段发送出去的数据为简体中文编码",  // 对方站点只接受 简体中文，这种不编码直接发出去就会报错
+			"user_name": cli.Utf8ToSimpleChinese([]byte("该字段发送出去的数据为简体中文编码")), // 第二个参数：默认编码为 GB18030，（GBK 、GB18030 都是简体中文，go编码器中没有 gb2312）
+		},
+		//Headers: map[string]interface{}{
+		//	"Content-Type": "application/x-www-form-urlencoded;charset=gb2312",
+		//},
+	})
+	if err != nil {
+		t.Errorf("发送简体中文测试出错：%s\n", err.Error())
 	} else {
 		txt, err := resp.GetContents()
 		if err == nil {

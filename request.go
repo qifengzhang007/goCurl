@@ -303,7 +303,11 @@ func (r *Request) SimpleChineseToUtf8(vBytes []byte) string {
 	return mahonia.NewDecoder("GB18030").ConvertString(string(vBytes))
 }
 
-// （接受到的）utf-8 转换为  简体中文
-func (r *Request) Utf8ToSimpleChinese(vBytes []byte) string {
-	return mahonia.NewDecoder("utf-8").ConvertString(string(vBytes))
+// （一般是go 语言发送的数据）utf-8 转换为  简体中文发出去
+func (r *Request) Utf8ToSimpleChinese(vBytes []byte, charset ...string) string {
+	if len(charset) == 0 {
+		return mahonia.NewEncoder("GB18030").ConvertString(string(vBytes))
+	} else {
+		return mahonia.NewEncoder(charset[0]).ConvertString(string(vBytes))
+	}
 }
