@@ -12,8 +12,10 @@ import (
 
 func TestServerDemo(t *testing.T) {
 	http.HandleFunc("/get-timeout", getTimeout)
+	http.HandleFunc("/getWithQuery", getWithQuery)
 	http.HandleFunc("/post-with-cookies", postWithCookies)
 	http.HandleFunc("/post-with-json", postWithJSON)
+	http.HandleFunc("/postWithFormParams", postWithFormParams)
 	http.HandleFunc("/put", put)
 	http.HandleFunc("/delete", delete)
 
@@ -22,7 +24,11 @@ func TestServerDemo(t *testing.T) {
 		log.Fatal("Listen And Server:", err)
 	}
 }
-
+func getWithQuery(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.RawQuery //  请求结果：query:q=golang&random=12345&scope=project
+	//	fmt.Printf("%#+v\n",r.URL.Query())   //  返回  url.Values{"q":[]string{"golang"}, "random":[]string{"12345"}, "scope":[]string{"project"}}
+	fmt.Fprintf(w, "query:%s", q)
+}
 func getTimeout(w http.ResponseWriter, r *http.Request) {
 	time.Sleep(time.Duration(1) * time.Second)
 	fmt.Fprintf(w, "http get timeout")
@@ -46,6 +52,7 @@ func postWithFormParams(w http.ResponseWriter, r *http.Request) {
 	}
 
 	r.ParseForm()
+	fmt.Printf("数据解析:%#+v\n", r.PostForm) //  数据解析:url.Values{"q":[]string{"golang"}, "random":[]string{"12345"}, "scope":[]string{"project"}}
 
 	params, _ := json.Marshal(r.Form)
 

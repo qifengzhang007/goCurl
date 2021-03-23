@@ -2,14 +2,21 @@ package goCurl
 
 import (
 	"fmt"
-	"github.com/axgle/mahonia"
 	"net/http"
 	"net/http/cookiejar"
 )
 
-//var CurSiteCookiesJar *cookiejar.Jar;
+// 可能的错误常量值
+const (
+	// 程序没有识别到对方站点编码类型，无法自动转码，出错，需要手动设置正在请求的站点编码值
+	charsetDecoderError = `程序没有自动检测到对方站点响应 Header["Content-Type"] 编码类型,请创建客户端时手动指定 options 的参数 SetResCharset 值，可选值(GB18030、GB2312、utf-8等)`
+	// 代理设置错误
+	proxyError = "代理设置错误，一般是设置的代理ip地址不可用 "
+	// 下载的目标文件内容为空
+	downloadFileIsEmpty = "被下载的文件内容为空"
+)
 
-// CreateHttpClient new request object
+// 创建一个 HttpClient 客户端用于发送请求
 func CreateHttpClient(opts ...Options) *Request {
 	curSiteCookiesJar, _ := cookiejar.New(nil)
 	req := &Request{
@@ -48,11 +55,11 @@ func mergeHeaders(defaultHeaders Options, options ...Options) Options {
 func defaultHeader() Options {
 	headers := Options{
 		Headers: map[string]interface{}{
-			"User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.81 Safari/537.36 SE 2.X MetaSr 1.0",
-			"Accept":     "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+			"User-Agent":   "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.81 Safari/537.36 SE 2.X MetaSr 1.0",
+			"Accept":       "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+			"Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
 			//	特别提醒：真实的浏览器该值为 Accept-Encoding: gzip, deflate，表示浏览器接受压缩后的二进制，浏览器端再解析为html展示，
 			//	但是HttpClient解析就麻烦了，所以必须为空或者不设置该值，接受原始数据。否则很容易出现乱码
-			"Content-Type":              "application/x-www-form-urlencoded;charset=utf-8",
 			"Accept-Encoding":           "",
 			"Accept-Language":           "zh-CN,zh;q=0.9",
 			"Upgrade-Insecure-Requests": "1",
@@ -61,9 +68,4 @@ func defaultHeader() Options {
 		},
 	}
 	return headers
-}
-
-// 编码转换，中文编码转码
-func simpleChinese2Utf8(vBytes []byte) string {
-	return mahonia.NewDecoder("GB18030").ConvertString(string(vBytes))
 }

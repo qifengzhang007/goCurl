@@ -33,6 +33,7 @@ func TestRequest_Get(t *testing.T) {
 func TestRequest_Get_withQuery_arr(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 	//  cli.Get 切换成 cli.Post 就是 post 方式提交表单参数
+	//resp, err := cli.Post("http://127.0.0.1:8091/postWithFormParams", goCurl.Options{
 	resp, err := cli.Get("https://www.oschina.net/search", goCurl.Options{
 		FormParams: map[string]interface{}{
 			"random": 12345,

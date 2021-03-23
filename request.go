@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/axgle/mahonia"
 	"io"
 	"net/http"
 	"net/http/cookiejar"
@@ -49,7 +50,7 @@ func (r *Request) Down(resourceUrl string, savePath, saveName string, opts ...Op
 			body := vResponse.GetBody()
 			return r.saveFile(body, savePath+filename)
 		} else {
-			return false, errors.New("被下载的文件内容为空")
+			return false, errors.New(downloadFileIsEmpty)
 		}
 	}
 	return false, vError
@@ -157,12 +158,19 @@ func (r *Request) Request(method, uri string, opts ...Options) (*Response, error
 	// parse cookies
 	r.parseCookies()
 
+	// 获取响应所需要的数据编码类型
+	var resCharset string
+	if len(opts) > 0 {
+		resCharset = opts[0].SetResCharset
+	}
+
 	_resp, err := r.cli.Do(r.req)
 	resp := &Response{
-		resp:       _resp,
-		req:        r.req,
-		cookiesJar: r.cookiesJar,
-		err:        err,
+		resp:          _resp,
+		req:           r.req,
+		cookiesJar:    r.cookiesJar,
+		err:           err,
+		setResCharset: resCharset,
 	}
 
 	if err != nil {
@@ -190,7 +198,7 @@ func (r *Request) parseClient() {
 		if err == nil {
 			tr.Proxy = http.ProxyURL(proxy)
 		} else {
-			fmt.Println(r.opts.Proxy+"代理设置错误：", err.Error())
+			fmt.Println(r.opts.Proxy+proxyError, err.Error())
 		}
 	}
 
@@ -288,4 +296,14 @@ func (r *Request) parseGetFormData() string {
 	} else {
 		return ""
 	}
+}
+
+//（接受到的）简体中文 转换为 utf-8
+func (r *Request) SimpleChineseToUtf8(vBytes []byte) string {
+	return mahonia.NewDecoder("GB18030").ConvertString(string(vBytes))
+}
+
+// （接受到的）utf-8 转换为  简体中文
+func (r *Request) Utf8ToSimpleChinese(vBytes []byte) string {
+	return mahonia.NewDecoder("utf-8").ConvertString(string(vBytes))
 }

@@ -1,7 +1,9 @@
 package goCurl
 
 import (
+	"errors"
 	"fmt"
+	"github.com/axgle/mahonia"
 	"io"
 	"io/ioutil"
 	"net"
@@ -12,10 +14,11 @@ import (
 
 // Response response object
 type Response struct {
-	resp       *http.Response
-	req        *http.Request
-	cookiesJar *cookiejar.Jar
-	err        error
+	resp          *http.Response
+	req           *http.Request
+	cookiesJar    *cookiejar.Jar
+	err           error
+	setResCharset string
 }
 
 // GetCookies, 获取服务端生成的全部cookies
@@ -57,10 +60,22 @@ func (r *Response) GetContents() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	// utf 系列直接返回
 	if strings.Contains(strings.ToLower(temp), "charset=utf") {
 		bodystr = string(body)
+
+		// gb 系列当做简体中文处理
+	} else if strings.Contains(strings.ToLower(temp), "gb") {
+		bodystr = mahonia.NewDecoder("GB18030").ConvertString(string(body))
 	} else {
-		bodystr = simpleChinese2Utf8(body)
+		//程序没有从对方响应 Header["Content-Type"] 检测到编码类型，那么需要请求者手动设置对方的站点编码
+		if decoder := mahonia.NewDecoder(r.setResCharset); decoder != nil {
+			bodystr = decoder.ConvertString(string(body))
+		} else {
+			return "", errors.New(charsetDecoderError)
+		}
+
 	}
 
 	return bodystr, nil
