@@ -52,6 +52,7 @@ go  get github.com/qifengzhang007/goCurl@v1.3.0
 
 ```
 ## 基本语法篇      
+> 基本语法涵盖了 get 、post 、xml、json等市面上绝大部分常用场景的接口数据提交测试用例.  
 [进入详情](./test/request_test.go)
 
 ## (爬虫核心)高级实战部分
