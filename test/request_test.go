@@ -29,13 +29,11 @@ func TestRequest_Get(t *testing.T) {
 
 //  https 以及 表单参数
 //  get请求参数如果不是特别长，建议和地址拼接在一起请求,例如： https://www.oschina.net/search?scope=project&q=golang
-//  如果参数比较长，您也可以按照表单参数方式提交
-func TestRequest_Get_withQuery_arr(t *testing.T) {
+func TestRequest_Get_withQuery(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 	//  cli.Get 切换成 cli.Post 就是 post 方式提交表单参数
 	//resp, err := cli.Post("http://127.0.0.1:8091/postWithFormParams", goCurl.Options{
 	resp, err := cli.Get("https://www.oschina.net/search", goCurl.Options{
-		//resp, err := cli.Get("http://139.196.101.31:2080/test_json.php", goCurl.Options{
 		FormParams: map[string]interface{}{
 			"random": 12345,
 			"scope":  "project",
@@ -97,6 +95,71 @@ func TestRequest_Post_withJSON(t *testing.T) {
 			Msg  string   `json:"msg"`
 			Data []string `json:"data"`
 		}{200, "OK", []string{"hello", "world"}},
+	})
+	if err != nil {
+		t.Errorf("请求出错：%s\n", err.Error())
+	} else {
+		txt, err := resp.GetContents()
+		if err == nil {
+			t.Logf("请求结果：%s\n", txt)
+		} else {
+			t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
+		}
+	}
+}
+
+//  post向 webservice接口提交 xml 数据(以表单参数形式提交x-www-form-urlencoded)
+//  webservice测试地址以及接口说明：http://www.webxml.com.cn/WebServices/ChinaZipSearchWebService.asmx/getSupportCity
+// 浏览器打开以上地址，F12 可以查看webservice 接口以表单形式是如何发送数据的
+func TestRequest_PostFormData_WithXml(t *testing.T) {
+	cli := goCurl.CreateHttpClient()
+
+	resp, err := cli.Post("http://www.webxml.com.cn/WebServices/ChinaZipSearchWebService.asmx/getSupportCity", goCurl.Options{
+		Headers: map[string]interface{}{
+			"Content-Type": "application/x-www-form-urlencoded",
+		},
+		FormParams: map[string]interface{}{
+			"byProvinceName": "重庆", // 参数选项：上海、北京、天津、重庆 等。这个接口在postman测试有时候也是很稳定，可以更换参数多次测试
+		},
+		SetResCharset: "utf-8",
+		Timeout:       10,
+	})
+	if err != nil {
+		t.Errorf("请求出错：%s\n", err.Error())
+	} else {
+		txt, err := resp.GetContents()
+		if err == nil {
+			t.Logf("请求结果：%s\n", txt)
+		} else {
+			t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
+		}
+	}
+}
+
+//  post向 webservice接口提交 xml 数据（以raw方式提交）
+//  webservice测试地址以及接口说明：http://www.webxml.com.cn/WebServices/ChinaZipSearchWebService.asmx
+func TestRequest_PostRaw_WithXml(t *testing.T) {
+	cli := goCurl.CreateHttpClient()
+
+	// 需要提交的 xml 数据格式，发送前请转换为以下文本格式
+	// 结构体转 xml 格式代码参见：https://blog.csdn.net/f363641380/article/details/87651427
+	xml := `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <getSupportCity xmlns="http://WebXml.com.cn/">
+      <byProvinceName>上海</byProvinceName>
+    </getSupportCity>
+  </soap:Body>
+</soap:Envelope>
+`
+
+	resp, err := cli.Post("http://www.webxml.com.cn/WebServices/ChinaZipSearchWebService.asmx", goCurl.Options{
+		Headers: map[string]interface{}{
+			"Content-Type": "text/xml; charset=utf-8",
+			"SOAPAction":   "http://WebXml.com.cn/getSupportCity", //  该参数按照业务方的具体要求传递
+		},
+		XML:     xml,
+		Timeout: 10,
 	})
 	if err != nil {
 		t.Errorf("请求出错：%s\n", err.Error())

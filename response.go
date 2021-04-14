@@ -60,7 +60,6 @@ func (r *Response) GetContents() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	fmt.Printf("对方站点编码类型：%+v\n", temp)
 	// utf 系列直接返回
 	if strings.Contains(strings.ToLower(temp), "charset=utf") {
 		bodystr = string(body)

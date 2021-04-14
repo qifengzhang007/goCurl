@@ -8,6 +8,7 @@ type Options struct {
 	BaseURI       string
 	FormParams    map[string]interface{}
 	JSON          interface{}
+	XML           string
 	Timeout       float32
 	timeout       time.Duration
 	Cookies       interface{}

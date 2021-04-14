@@ -274,6 +274,12 @@ func (r *Request) parseBody() {
 		}
 	}
 
+	// text/xml
+	if r.opts.XML != "" {
+		r.body = strings.NewReader(r.opts.XML)
+		return
+	}
+
 	return
 }
 
