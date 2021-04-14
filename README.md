@@ -44,8 +44,10 @@ go  get github.com/qifengzhang007/goCurl@v1.3.0
         Timeout    float32
         Cookies    interface{}
         Proxy      string
-        // 如果请求的站点响应头  Header["Content-Type"]  中没有明确的 charset=utf-8 、charset=gb2312 等,则程序无法自动转换，会给出错误提示，需要创建客户端时手动设置对方站点编码
+        // 如果请求的站点响应头  Header["Content-Type"]  中没有明确的 charset=utf-8 、charset=gb2312 等
+        // 则程序无法自动转换，会给出错误提示，需要创建客户端时手动设置对方站点编码，例如：设置 SetResCharset 为 utf-8 、gb2312 等
         SetResCharset string   
+        XML           string    // xml 数据，最终按照文本格式发送出去
     }
 
 ```
