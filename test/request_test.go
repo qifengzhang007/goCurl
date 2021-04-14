@@ -142,7 +142,9 @@ func TestRequest_PostRaw_WithXml(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 
 	// 需要提交的 xml 数据格式，发送前请转换为以下文本格式
-	// 结构体转 xml 格式代码参见：https://blog.csdn.net/f363641380/article/details/87651427
+	// 正式业务我们的参数是动态的
+	// 那么就事先需要定义好go语言的结构体，最终将绑定好参数的结构体转为xml格式数据
+	// 关于结构体转 xml 格式代码参见：https://blog.csdn.net/f363641380/article/details/87651427
 	xml := `<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   <soap:Body>
