@@ -157,7 +157,7 @@ Server: BWS/1.0
 Vary: Accept-Encoding
 ```
 - 3.本包自动解析对方站点编码类型主要是根据以上响应头中的键：`Content-Type: text/html;charset=utf-8` ,自动查找 `charset` 对应的值,如果对方站点响应不完整，则会提示相关错误，需要在采集数据前人工确认对方站点编码类型，手动设置 `options` 参数 .
-- 4.手动设置对方站点编码类型的梳理语法
+- 4.手动设置对方站点编码类型的示例语法
 ```code   
 
 	cli := goCurl.CreateHttpClient()
