@@ -1,4 +1,4 @@
-## goCurl
+###  goCurl
 
 - 基于goz改造，感谢 `原作者（github.com/idoubi/goz.git）`提供了大量、优质的基础代码.  
 - 相比原版变化：
@@ -9,19 +9,21 @@
 >   5.增强原版本中表单参数只能传递string、[]string的问题，该版本支持数字、文本、[]string等。  
 >   6.增加请求时浏览器自带的默认参数，完全模拟浏览器发送数据。  
 >   7.增加被请求的网站数据编码自动转换功能（采集网站时不需要考虑对方是站点的编码类型，gbk系列、utf8全程自动转换）。  
->   8.增加获取服务端设置的cookie功能。    
->   9.升级get请求,提交表单参数时相关语法规范为与post一致.   
+>   8.增加获取服务端设置的 `cookie` 功能。    
+>   9.升级 `GET` 请求,提交表单参数时相关语法规范为与 `POST` 一致.   
 >   10.从实用主义出发，我们重新编写了使用文档，复制文档中的代码即可快速解决业务问题.    
->   11.增加简体中文与utf-8编码互转函数,不管是发送还是接受都随意对字符进行编码转换.
+>   11.增加简体中文与utf-8编码互转函数,不管是发送还是接受都随意对字符进行编码转换.  
+>   12.增加 `XML` 格式数据提交，方便对接java类语言开发的 `webservice` 接口.  
+>   13.创建 `httpClient` 对象时使用 `sync.pool` 临时对象池,使客户端的创建更加高效,服务器资源占用更低,满足开发者创建超多客户端采集数据.    
 
-## 安装 goCurl 包  
+### 安装 goCurl 包  
 ```code 
 # 请自行在tag标签检查最新版本，本次使用 v1.3.0
 go  get github.com/qifengzhang007/goCurl@v1.3.0
 
 ```
 
-## 快速入门  
+###  快速入门  
 ```code
     // step 1 :  创建 httpClient 客户端
 	cli := goCurl.CreateHttpClient()
@@ -51,11 +53,14 @@ go  get github.com/qifengzhang007/goCurl@v1.3.0
     }
 
 ```
-## 基本语法篇      
-> 基本语法涵盖了 get 、post 、xml、json等市面上绝大部分常用场景的接口数据提交测试用例.  
-[进入详情](./test/request_test.go)
+### [点击查看基于语法详情](./test/request_test.go)     
+> 基本语法涵盖了 get 、post 、xml、json等市面上绝大部分常用场景的接口数据提交测试用例.
 
-## (爬虫核心)高级实战部分
+
+
+
+
+### 爬虫核心-高级实战部分
 >   1.我们基于 `goCurl` 编写一段互联网数据采集代码.  
 >   2.要求必须是并发采集,支持控制并发量.本段代码的并发量是持续并发量.        
 >   3.数据采集使用我们提供的如下代码，你会发现一切是如此简洁与高效.            
@@ -133,5 +138,40 @@ func HandleResponse(code,content string){
 601360, var hq_str_sh601360="三六零,18.790,18.680,18.650,18.950,18.560 ...   ...
                                                                
 002812, var hq_str_sz002812="恩捷股份,78.660,78.210,83.350,84.190,78.2 ...   ...
+
+```
+
+
+### 避坑指南 
+- 1.关于 `goCurl` 包自动解析被采集的网站编码为 `utf-8` 、`GBK`、`GB2312` 说明
+- 2.我们以百度首页(http://www.baidu.com)为例，F12查看基本的响应格式：
+```code   
+Cache-Control: private
+Connection: keep-alive
+Content-Encoding: gzip
+Content-Length: 78
+Content-Type: text/html;charset=utf-8
+Date: Wed, 12 Jan 2022 02:02:10 GMT
+Expires: Wed, 12 Jan 2022 02:02:10 GMT
+Server: BWS/1.0
+Vary: Accept-Encoding
+```
+- 3.本包自动解析对方站点编码类型主要是根据以上响应头中的键：`Content-Type: text/html;charset=utf-8` ,自动查找 `charset` 对应的值,如果对方站点响应不完整，则会提示相关错误，需要在采集数据前人工确认对方站点编码类型，手动设置 `options` 参数 .
+- 4.手动设置对方站点编码类型的梳理语法
+```code   
+
+	cli := goCurl.CreateHttpClient()
+
+	resp, err := cli.Post("http://www.webxml.com.cn/WebServices/ChinaZipSearchWebService.asmx/getSupportCity", goCurl.Options{
+		Headers: map[string]interface{}{
+			"Content-Type": "application/x-www-form-urlencoded",
+		},
+		FormParams: map[string]interface{}{
+			"byProvinceName": "重庆", // 参数选项：上海、北京、天津、重庆 等。这个接口在postman测试有时候也是很稳定，可以更换参数多次测试
+		},
+		# 这里手动设置对方站点编码类型为 utf-8，其他可选项：GB18030、GBK、GB2312、utf-8
+		SetResCharset: "utf-8",
+		Timeout:       10,
+	})
 
 ```
