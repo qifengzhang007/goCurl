@@ -53,7 +53,7 @@ go  get github.com/qifengzhang007/goCurl@v1.3.3
     }
 
 ```
-### [点击查看基于语法详情](./test/request_test.go)     
+### [点击查看基本语法详情](./test/request_test.go)     
 > 基本语法涵盖了 get 、post 、xml、json等市面上绝大部分常用场景的接口数据提交测试用例.
 
 
