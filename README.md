@@ -47,7 +47,7 @@ go  get github.com/qifengzhang007/goCurl@v1.3.3
         Cookies    interface{}
         Proxy      string
         // 如果请求的站点响应头  Header["Content-Type"]  中没有明确的 charset=utf-8 、charset=gb2312 等
-        // 则程序无法自动转换，会给出错误提示，需要创建客户端时手动设置对方站点编码，例如：设置 SetResCharset 为 utf-8 、gb2312 等
+        // 则程序无法自动转换，会给出错误提示，需要创建客户端时手动设置对方站点编码，例如：设置 SetResCharset 为 utf-8 、GB18030（gbk 和 gb2312 的超集） 等
         SetResCharset string   
         XML           string    // xml 数据，最终按照文本格式发送出去
     }
@@ -143,7 +143,7 @@ func HandleResponse(code,content string){
 
 
 ### 避坑指南 
-- 1.关于 `goCurl` 包自动解析被采集的网站编码为 `utf-8` 、`GBK`、`GB2312` 说明
+- 1.关于 `goCurl` 包自动解析被采集的网站编码为 `utf-8` 、`GB18030（GBK 和 GB2312 的超集）`  说明
 - 2.我们以百度首页(http://www.baidu.com)为例，F12查看基本的响应格式：
 ```code   
 Cache-Control: private
@@ -169,7 +169,7 @@ Vary: Accept-Encoding
 		FormParams: map[string]interface{}{
 			"byProvinceName": "重庆", // 参数选项：上海、北京、天津、重庆 等。这个接口在postman测试有时候也是很稳定，可以更换参数多次测试
 		},
-		# 这里手动设置对方站点编码类型为 utf-8，其他可选项：GB18030、GBK、GB2312、utf-8
+		# 这里手动设置对方站点编码类型为 utf-8，其他可选项：GB18030 （GBK 和 GB2312 请使用 GB18030 代替）
 		SetResCharset: "utf-8",
 		Timeout:       10,
 	})
