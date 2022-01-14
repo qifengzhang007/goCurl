@@ -144,17 +144,13 @@ func HandleResponse(code,content string){
 
 ### 避坑指南 
 - 1.关于 `goCurl` 包自动解析被采集的网站编码为 `utf-8` 、`GB18030（GBK 和 GB2312 的超集）`  说明
-- 2.我们以百度首页(http://www.baidu.com)为例，F12查看基本的响应格式：
+- 2.我们以新浪的某个页面地址 (http://hq.sinajs.cn/list=sh601006) 为例，F12查看基本的响应格式：
 ```code   
-Cache-Control: private
-Connection: keep-alive
+Cache-Control: no-cache
+Connection: Keep-Alive
 Content-Encoding: gzip
-Content-Length: 78
-Content-Type: text/html;charset=utf-8
-Date: Wed, 12 Jan 2022 02:02:10 GMT
-Expires: Wed, 12 Jan 2022 02:02:10 GMT
-Server: BWS/1.0
-Vary: Accept-Encoding
+Content-Length: 169
+Content-Type: application/javascript; charset=GB18030
 ```
 - 3.本包自动解析对方站点编码类型主要是根据以上响应头中的键：`Content-Type: text/html;charset=utf-8` ,自动查找 `charset` 对应的值,如果对方站点响应不完整，则会提示相关错误，需要在采集数据前人工确认对方站点编码类型，手动设置 `options` 参数 .
 - 4.手动设置对方站点编码类型的示例语法
