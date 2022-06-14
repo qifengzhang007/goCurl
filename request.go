@@ -24,7 +24,7 @@ type Request struct {
 	cli                  *http.Client
 	req                  *http.Request
 	body                 io.Reader
-	subGetFormDataParmas string
+	subGetFormDataParams string
 	cookiesJar           *cookiejar.Jar
 }
 
@@ -121,11 +121,12 @@ func (r *Request) Options(uri string, opts ...Options) (*Response, error) {
 
 // Request send request
 func (r *Request) Request(method, uri string, opts ...Options) (*Response, error) {
-
-	r.opts = mergeHeaders(defaultHeader(), opts...)
+	if len(opts) > 0 {
+		r.opts = mergeHeaders(defaultHeader(), opts[0], r.opts)
+	}
 	switch method {
 	case http.MethodGet, http.MethodDelete:
-		uri = uri + r.parseGetFormData()
+		uri = r.opts.BaseURI + uri + r.parseGetFormData()
 		req, err := http.NewRequest(method, uri, nil)
 		if err != nil {
 			return nil, err
@@ -159,18 +160,17 @@ func (r *Request) Request(method, uri string, opts ...Options) (*Response, error
 	r.parseCookies()
 
 	// 获取响应所需要的数据编码类型
-	var resCharset string
-	if len(opts) > 0 {
-		resCharset = opts[0].SetResCharset
-	}
-
+	//var resCharset string
+	//if len(opts) > 0 {
+	//	resCharset = opts[0].SetResCharset
+	//}
 	_resp, err := r.cli.Do(r.req)
 	resp := &Response{
 		resp:          _resp,
 		req:           r.req,
 		cookiesJar:    r.cookiesJar,
 		err:           err,
-		setResCharset: resCharset,
+		setResCharset: r.opts.SetResCharset,
 	}
 
 	if err != nil {
@@ -297,8 +297,8 @@ func (r *Request) parseGetFormData() string {
 			vv := fmt.Sprintf("%v", v)
 			values.Set(k, vv)
 		}
-		r.subGetFormDataParmas = values.Encode()
-		return "?" + r.subGetFormDataParmas
+		r.subGetFormDataParams = values.Encode()
+		return "?" + r.subGetFormDataParams
 	} else {
 		return ""
 	}

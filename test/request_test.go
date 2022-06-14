@@ -10,8 +10,14 @@ import (
 //  get 网站编码为 gbk
 // 主要测试 get 请求以及自动转换被采集网站的编码，保证返回的数据是正常的
 func TestRequest_Get(t *testing.T) {
-	cli := goCurl.CreateHttpClient()
-	resp, err := cli.Get("http://hq.sinajs.cn/list=sh601006")
+	cli := goCurl.CreateHttpClient(goCurl.Options{
+		Headers: map[string]interface{}{
+			"Referer": "http://vip.stock.finance.sina.com.cn",
+		},
+		SetResCharset: "GB18030",
+		BaseURI:       "http://hq.sinajs.cn",
+	})
+	resp, err := cli.Get("/list=sh601006")
 	if err != nil && resp == nil {
 		t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
 	}

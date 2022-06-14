@@ -24,7 +24,7 @@ func CreateHttpClient(opts ...Options) *Request {
 		cli: hClient,
 	}
 	if len(opts) > 0 {
-		req.opts = mergeHeaders(defaultHeader(), opts[0])
+		req.opts = mergeHeaders(defaultHeader(), opts[0], req.opts)
 	}
 	req.cookiesJar = curSiteCookiesJar
 	return req
@@ -43,6 +43,21 @@ func mergeHeaders(defaultHeaders Options, options ...Options) Options {
 			} else {
 				options[0].Headers = make(map[string]interface{}, 1)
 				options[0].Headers[key] = fmt.Sprintf("%v", value)
+			}
+		}
+		if len(options) == 2 {
+			// header 头参数参数合并完成后，继续合并以下几个参数:BaseURI 、Timeout
+			if options[0].BaseURI != "" {
+				options[1].BaseURI = options[0].BaseURI
+			}
+			if options[0].Timeout > 0 {
+				options[1].Timeout = options[0].Timeout
+			}
+			if options[0].Proxy != "" {
+				options[1].Proxy = options[0].Proxy
+			}
+			if options[0].SetResCharset != "" {
+				options[1].SetResCharset = options[0].SetResCharset
 			}
 		}
 		return options[0]
