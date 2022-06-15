@@ -30,8 +30,10 @@ go  get github.com/qifengzhang007/goCurl@v1.3.3
 
     // step 2 ： 请求并获取结果
 	resp, err := cli.Get("https://www.baidu.com")
+	fmt.Printf("请求参数：%v\n", resp.GetRequest())
+
 	if err != nil {
-		t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
+		fmt.Printf("单元测试失败,错误明细：%s\n", err.Error())
 	}else{
 		txt, err := resp.GetContents()
        fmt.Println("响应结果：",txt)

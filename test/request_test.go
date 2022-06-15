@@ -20,6 +20,7 @@ func TestRequest_Get(t *testing.T) {
 		BaseURI:       "",
 	})
 	resp, err := cli.Get("http://hq.sinajs.cn/list=sz002594")
+	//t.Logf("请求参数：%v\n", resp.GetRequest())
 	if err != nil && resp == nil {
 		t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
 	}
