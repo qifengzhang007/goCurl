@@ -10,6 +10,8 @@ import (
 //  get 网站编码为 gbk
 // 主要测试 get 请求以及自动转换被采集网站的编码，保证返回的数据是正常的
 func TestRequest_Get(t *testing.T) {
+
+	// 创建 http 客户端的时候可以直接填充一些公共参数，后续请求会复用
 	cli := goCurl.CreateHttpClient(goCurl.Options{
 		Headers: map[string]interface{}{
 			"Referer": "http://vip.stock.finance.sina.com.cn",
@@ -17,7 +19,7 @@ func TestRequest_Get(t *testing.T) {
 		SetResCharset: "GB18030",
 		BaseURI:       "http://hq.sinajs.cn",
 	})
-	resp, err := cli.Get("/list=sh601006")
+	resp, err := cli.Get("/list=sz002594")
 	if err != nil && resp == nil {
 		t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
 	}
@@ -135,7 +137,7 @@ func TestRequest_PostFormData_WithXml(t *testing.T) {
 	} else {
 		txt, err := resp.GetContents()
 		if err == nil {
-			t.Logf("请求结果：%s\n", txt)
+			t.Logf("请求结果：\n%s\n", txt)
 		} else {
 			t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
 		}
@@ -145,7 +147,9 @@ func TestRequest_PostFormData_WithXml(t *testing.T) {
 //  post向 webservice接口提交 xml 数据（以raw方式提交）
 //  webservice测试地址以及接口说明：http://www.webxml.com.cn/WebServices/ChinaZipSearchWebService.asmx
 func TestRequest_PostRaw_WithXml(t *testing.T) {
-	cli := goCurl.CreateHttpClient()
+	cli := goCurl.CreateHttpClient(goCurl.Options{
+		SetResCharset: "utf-8",
+	})
 
 	// 需要提交的 xml 数据格式，发送前请转换为以下文本格式
 	// 正式业务我们的参数是动态的
@@ -167,14 +171,14 @@ func TestRequest_PostRaw_WithXml(t *testing.T) {
 			"SOAPAction":   "http://WebXml.com.cn/getSupportCity", //  该参数按照业务方的具体要求传递
 		},
 		XML:     xml,
-		Timeout: 10,
+		Timeout: 20,
 	})
 	if err != nil {
 		t.Errorf("请求出错：%s\n", err.Error())
 	} else {
-		txt, err := resp.GetContents()
-		if err == nil {
-			t.Logf("请求结果：%s\n", txt)
+		txt, err2 := resp.GetContents()
+		if err2 == nil {
+			t.Logf("请求结果:\n%v\n", txt)
 		} else {
 			t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
 		}
@@ -224,17 +228,17 @@ func TestRequest_Down(t *testing.T) {
 // 获取 cookie
 func TestRequest_GetCookies(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
-	resp, err := cli.Get(`http://www.iwencai.com/diag/block-detail?pid=10751&codes=600422&codeType=stock&info={"view":{"nolazy":1}}`)
+	resp, err := cli.Get(`https://www.baidu.com`)
 
 	if err != nil {
-		t.Errorf("采集同花顺站点发生错误：%s\n", err.Error())
+		t.Errorf("采集百度首页cookie发生错误：%s\n", err.Error())
 	} else {
 		// 全量获取cookie
 		for index, value := range resp.GetCookies() {
 			t.Logf("序号：%d, %s\n", index, value.String())
 		}
 		// 根据键获取指定的 cookie
-		t.Logf("PHPSESSID对应的cookie值：%s\n", resp.GetCookie("PHPSESSID"))
+		t.Logf("BAIDUID 对应的cookie值：%s\n", resp.GetCookie("BAIDUID"))
 	}
 
 }

@@ -24,14 +24,14 @@ func CreateHttpClient(opts ...Options) *Request {
 		cli: hClient,
 	}
 	if len(opts) > 0 {
-		req.opts = mergeHeaders(defaultHeader(), opts[0], req.opts)
+		req.opts = mergeDefaultParams(defaultHeader(), opts[0], req.opts)
 	}
 	req.cookiesJar = curSiteCookiesJar
 	return req
 }
 
 // 合并用户提供的header头字段信息，用户提供的header头优先于默认头字段信息
-func mergeHeaders(defaultHeaders Options, options ...Options) Options {
+func mergeDefaultParams(defaultHeaders Options, options ...Options) Options {
 	if len(options) == 0 {
 		return defaultHeader()
 	} else {
@@ -45,7 +45,7 @@ func mergeHeaders(defaultHeaders Options, options ...Options) Options {
 				options[0].Headers[key] = fmt.Sprintf("%v", value)
 			}
 		}
-		if len(options) == 2 {
+		if len(options) >= 2 {
 			// header 头参数参数合并完成后，继续合并以下几个参数:BaseURI 、Timeout
 			if options[0].BaseURI != "" {
 				options[1].BaseURI = options[0].BaseURI
@@ -55,6 +55,9 @@ func mergeHeaders(defaultHeaders Options, options ...Options) Options {
 			}
 			if options[0].Proxy != "" {
 				options[1].Proxy = options[0].Proxy
+			}
+			if options[0].Cookies != nil {
+				options[1].Cookies = options[0].Cookies
 			}
 			if options[0].SetResCharset != "" {
 				options[1].SetResCharset = options[0].SetResCharset
@@ -78,6 +81,7 @@ func defaultHeader() Options {
 			"Upgrade-Insecure-Requests": "1",
 			"Connection":                "keep-alive",
 			"Cache-Control":             "max-age=0",
+			"Host":                      "",
 		},
 	}
 	return headers

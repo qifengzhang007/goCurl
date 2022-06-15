@@ -122,8 +122,11 @@ func (r *Request) Options(uri string, opts ...Options) (*Response, error) {
 // Request send request
 func (r *Request) Request(method, uri string, opts ...Options) (*Response, error) {
 	if len(opts) > 0 {
-		r.opts = mergeHeaders(defaultHeader(), opts[0], r.opts)
+		r.opts = mergeDefaultParams(defaultHeader(), opts[0], r.opts)
+	} else {
+		r.opts = mergeDefaultParams(defaultHeader(), Options{}, r.opts)
 	}
+
 	switch method {
 	case http.MethodGet, http.MethodDelete:
 		uri = r.opts.BaseURI + uri + r.parseGetFormData()
@@ -147,8 +150,9 @@ func (r *Request) Request(method, uri string, opts ...Options) (*Response, error
 		return nil, errors.New("invalid request method")
 	}
 	r.opts.Headers["Host"] = fmt.Sprintf("%v", r.req.Host)
-	// parseOptions
-	r.parseOptions()
+
+	// parseTimeout
+	r.parseTimeout()
 
 	// parseClient
 	r.parseClient()
@@ -159,11 +163,6 @@ func (r *Request) Request(method, uri string, opts ...Options) (*Response, error
 	// parse cookies
 	r.parseCookies()
 
-	// 获取响应所需要的数据编码类型
-	//var resCharset string
-	//if len(opts) > 0 {
-	//	resCharset = opts[0].SetResCharset
-	//}
 	_resp, err := r.cli.Do(r.req)
 	resp := &Response{
 		resp:          _resp,
@@ -180,8 +179,7 @@ func (r *Request) Request(method, uri string, opts ...Options) (*Response, error
 	return resp, nil
 }
 
-func (r *Request) parseOptions() {
-	// default timeout 30s
+func (r *Request) parseTimeout() {
 	if r.opts.Timeout == 0 {
 		r.opts.Timeout = 30
 	}
