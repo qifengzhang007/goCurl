@@ -29,11 +29,12 @@ go  get github.com/qifengzhang007/goCurl@v1.3.3
 	cli := goCurl.CreateHttpClient()
 
     // step 2 ： 请求并获取结果
-	resp, err := cli.Get("http://hq.sinajs.cn/list=sh601006")
+	resp, err := cli.Get("https://www.baidu.com")
 	if err != nil {
 		t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
 	}else{
-	txt, err := resp.GetContents()
+		txt, err := resp.GetContents()
+       fmt.Println("响应结果：",txt)
     }
 
     // 其他可选参数选项,请结合语法篇理解与使用即可
@@ -43,7 +44,7 @@ go  get github.com/qifengzhang007/goCurl@v1.3.3
         BaseURI    string
         FormParams map[string]interface{}
         JSON       interface{}
-        Timeout    float32
+        Timeout    float32   // 超时时间，单位：秒
         Cookies    interface{}
         Proxy      string
         // 如果请求的站点响应头  Header["Content-Type"]  中没有明确的 charset=utf-8 、charset=gb2312 等
@@ -72,7 +73,7 @@ go  get github.com/qifengzhang007/goCurl@v1.3.3
 //http://hq.sinajs.cn/list=sz002414
 
 func TestSpiderStock(t *testing.T){
-	var StockUri="http://hq.sinajs.cn/list="
+	var StockUri="/list="
 	var stockList=[]string{"601606","600522","002414","600151","000725","601238","002812","601360"}
 
 	var wg sync.WaitGroup
@@ -96,7 +97,13 @@ func TestSpiderStock(t *testing.T){
 		}else{
 			tmpUri=StockUri+"sz"+stockCode
 		}
-		httpClient:=goCurl.CreateHttpClient()
+		httpClient:=goCurl.CreateHttpClient(goCurl.Options{
+				Headers: map[string]interface{}{
+				"Referer": "http://vip.stock.finance.sina.com.cn",
+				},
+				SetResCharset: "GB18030",
+				BaseURI:       "http://hq.sinajs.cn",
+				})
 			if response,err:=httpClient.Get(tmpUri);err==nil{
 				//将结果的处理拆分为独立的函数，保持采集逻辑简洁
 				if content,err:=response.GetContents();err==nil{
