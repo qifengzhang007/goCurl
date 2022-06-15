@@ -123,8 +123,6 @@ func (r *Request) Options(uri string, opts ...Options) (*Response, error) {
 func (r *Request) Request(method, uri string, opts ...Options) (*Response, error) {
 	if len(opts) > 0 {
 		r.opts = mergeDefaultParams(defaultHeader(), opts[0], r.opts)
-	} else {
-		r.opts = mergeDefaultParams(defaultHeader(), Options{}, r.opts)
 	}
 
 	switch method {
@@ -215,15 +213,19 @@ func (r *Request) parseCookies() {
 	case map[string]string:
 		cookies := r.opts.Cookies.(map[string]string)
 		for k, v := range cookies {
-			r.req.AddCookie(&http.Cookie{
-				Name:  k,
-				Value: v,
-			})
+			if strings.ReplaceAll(v, " ", "") != "" {
+				r.req.AddCookie(&http.Cookie{
+					Name:  k,
+					Value: v,
+				})
+			}
 		}
 	case []*http.Cookie:
 		cookies := r.opts.Cookies.([]*http.Cookie)
 		for _, cookie := range cookies {
-			r.req.AddCookie(cookie)
+			if cookie != nil {
+				r.req.AddCookie(cookie)
+			}
 		}
 	}
 }
@@ -233,7 +235,9 @@ func (r *Request) parseHeaders() {
 		for k, v := range r.opts.Headers {
 			if vv, ok := v.([]string); ok {
 				for _, vvv := range vv {
-					r.req.Header.Add(k, vvv)
+					if strings.ReplaceAll(vvv, " ", "") != "" {
+						r.req.Header.Add(k, vvv)
+					}
 				}
 				continue
 			}
@@ -250,7 +254,9 @@ func (r *Request) parseBody() {
 		for k, v := range r.opts.FormParams {
 			if vv, ok := v.([]string); ok {
 				for _, vvv := range vv {
-					values.Add(k, vvv)
+					if strings.ReplaceAll(vvv, " ", "") != "" {
+						values.Add(k, vvv)
+					}
 				}
 				continue
 			}
@@ -288,7 +294,9 @@ func (r *Request) parseGetFormData() string {
 		for k, v := range r.opts.FormParams {
 			if vv, ok := v.([]string); ok {
 				for _, vvv := range vv {
-					values.Add(k, vvv)
+					if strings.ReplaceAll(vvv, " ", "") != "" {
+						values.Add(k, vvv)
+					}
 				}
 				continue
 			}

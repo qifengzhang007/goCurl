@@ -17,9 +17,9 @@ func TestRequest_Get(t *testing.T) {
 			"Referer": "http://vip.stock.finance.sina.com.cn",
 		},
 		SetResCharset: "GB18030",
-		BaseURI:       "http://hq.sinajs.cn",
+		BaseURI:       "",
 	})
-	resp, err := cli.Get("/list=sz002594")
+	resp, err := cli.Get("http://hq.sinajs.cn/list=sz002594")
 	if err != nil && resp == nil {
 		t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
 	}
