@@ -50,34 +50,33 @@ func (r *Response) GetResponse() *http.Response {
 }
 
 // GetBody parse response body
-func (r *Response) GetContents() (string, error) {
+func (r *Response) GetContents() (bodyStr string, err error) {
 	defer func() {
 		_ = r.resp.Body.Close()
 	}()
 	temp := strings.ReplaceAll(fmt.Sprintf("%v", r.resp.Header["Content-Type"]), " ", "")
-	var bodystr string
 	body, err := ioutil.ReadAll(r.resp.Body)
 	if err != nil {
 		return "", err
 	}
 	// utf 系列直接返回
 	if strings.Contains(strings.ToLower(temp), "charset=utf") {
-		bodystr = string(body)
+		bodyStr = string(body)
 
 		// gb 系列当做简体中文处理
 	} else if strings.Contains(strings.ToLower(temp), "gb") {
-		bodystr = mahonia.NewDecoder("GB18030").ConvertString(string(body))
+		bodyStr = mahonia.NewDecoder("GB18030").ConvertString(string(body))
 	} else {
 		//程序没有从对方响应 Header["Content-Type"] 检测到编码类型，那么需要请求者手动设置对方的站点编码
 		if decoder := mahonia.NewDecoder(r.setResCharset); decoder != nil {
-			bodystr = decoder.ConvertString(string(body))
+			bodyStr = decoder.ConvertString(string(body))
 		} else {
 			return "", errors.New(charsetDecoderError)
 		}
 
 	}
 
-	return bodystr, nil
+	return bodyStr, nil
 }
 
 // Get Response ContentLength

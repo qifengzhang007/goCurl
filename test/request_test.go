@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"github.com/qifengzhang007/goCurl"
 	"io/ioutil"
 	"log"
@@ -20,6 +21,27 @@ func TestRequest_Get(t *testing.T) {
 		BaseURI:       "",
 	})
 	resp, err := cli.Get("http://hq.sinajs.cn/list=sz002594")
+	//t.Logf("请求参数：%v\n", resp.GetRequest())
+	if err != nil && resp == nil {
+		t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
+	}
+	if err != nil {
+		t.Errorf("请求出错：%s\n", err.Error())
+	} else {
+		txt, err := resp.GetContents()
+		if err == nil {
+			t.Logf("请求结果：%s\n", txt)
+		} else {
+			t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
+		}
+	}
+}
+
+func TestRequest_Get2(t *testing.T) {
+
+	// 创建 http 客户端的时候可以直接填充一些公共参数，后续请求会复用
+	cli := goCurl.CreateHttpClient()
+	resp, err := cli.Get("http://49.232.145.118:20171/api/v1/portal/news?newsType=10&page=1&limit=50")
 	//t.Logf("请求参数：%v\n", resp.GetRequest())
 	if err != nil && resp == nil {
 		t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
@@ -174,6 +196,7 @@ func TestRequest_PostRaw_WithXml(t *testing.T) {
 		XML:     xml,
 		Timeout: 20,
 	})
+	fmt.Printf("请求参数：%#+v\n", resp.GetRequest())
 	if err != nil {
 		t.Errorf("请求出错：%s\n", err.Error())
 	} else {
