@@ -10,7 +10,7 @@ import (
 
 //  get 网站编码为 gbk
 // 主要测试 get 请求以及自动转换被采集网站的编码，保证返回的数据是正常的
-func TestRequest_Get(t *testing.T) {
+func TestRequestGet(t *testing.T) {
 
 	// 创建 http 客户端的时候可以直接填充一些公共参数，后续请求会复用
 	cli := goCurl.CreateHttpClient(goCurl.Options{
@@ -37,10 +37,16 @@ func TestRequest_Get(t *testing.T) {
 	}
 }
 
-func TestRequest_Get2(t *testing.T) {
+func TestRequestGet2(t *testing.T) {
 
 	// 创建 http 客户端的时候可以直接填充一些公共参数，后续请求会复用
-	cli := goCurl.CreateHttpClient()
+	cli := goCurl.CreateHttpClient(goCurl.Options{
+		Headers: map[string]interface{}{
+			"Referer": "http://vip.stock.finance.sina.com.cn",
+		},
+		SetResCharset: "GB18030",
+		BaseURI:       "",
+	})
 	resp, err := cli.Get("http://49.232.145.118:20171/api/v1/portal/news?newsType=10&page=1&limit=50")
 	//t.Logf("请求参数：%v\n", resp.GetRequest())
 	if err != nil && resp == nil {
@@ -60,7 +66,7 @@ func TestRequest_Get2(t *testing.T) {
 
 //  https 以及 表单参数
 //  get请求参数如果不是特别长，建议和地址拼接在一起请求,例如： https://www.oschina.net/search?scope=project&q=golang
-func TestRequest_Get_withQuery(t *testing.T) {
+func TestRequestGetWithQuery(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 	//  cli.Get 切换成 cli.Post 就是 post 方式提交表单参数
 	//resp, err := cli.Post("http://127.0.0.1:8091/postWithFormParams", goCurl.Options{
@@ -88,7 +94,7 @@ func TestRequest_Get_withQuery(t *testing.T) {
 }
 
 // GO 语言 UTF8 环境发送 简体中文数据
-func TestRequest_Send_Chinese(t *testing.T) {
+func TestRequestSendChinese(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 	resp, err := cli.Get("http://139.196.101.31:2080/test_json.php", goCurl.Options{
 		FormParams: map[string]interface{}{
@@ -114,7 +120,7 @@ func TestRequest_Send_Chinese(t *testing.T) {
 
 //  post提交 json 数据
 //  注意：这里的 header 头字段 Content-Type 必须设置为 application/json 格式
-func TestRequest_Post_withJSON(t *testing.T) {
+func TestRequestPostWithJSON(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 
 	resp, err := cli.Post("http://127.0.0.1:8091/post-with-json", goCurl.Options{
@@ -142,7 +148,7 @@ func TestRequest_Post_withJSON(t *testing.T) {
 //  post向 webservice接口提交 xml 数据(以表单参数形式提交x-www-form-urlencoded)
 //  webservice测试地址以及接口说明：http://www.webxml.com.cn/WebServices/ChinaZipSearchWebService.asmx/getSupportCity
 // 浏览器打开以上地址，F12 可以查看webservice 接口以表单形式是如何发送数据的
-func TestRequest_PostFormData_WithXml(t *testing.T) {
+func TestRequestPostFormDataWithXml(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 
 	resp, err := cli.Post("http://www.webxml.com.cn/WebServices/ChinaZipSearchWebService.asmx/getSupportCity", goCurl.Options{
@@ -169,7 +175,7 @@ func TestRequest_PostFormData_WithXml(t *testing.T) {
 
 //  post向 webservice接口提交 xml 数据（以raw方式提交）
 //  webservice测试地址以及接口说明：http://www.webxml.com.cn/WebServices/ChinaZipSearchWebService.asmx
-func TestRequest_PostRaw_WithXml(t *testing.T) {
+func TestRequestPostRawWithXml(t *testing.T) {
 	cli := goCurl.CreateHttpClient(goCurl.Options{
 		SetResCharset: "utf-8",
 	})
@@ -213,7 +219,7 @@ func TestRequest_PostRaw_WithXml(t *testing.T) {
 // 测试期间我们使用了 http://http.taiyangruanjian.com/ 代理站点提供的每天免费试用ip
 // 但是试用之前需要注册注册 [用户名] ,然后将 [用户名]以及您的外网ip添加至白名单才可以试用它们的代理，添加白名单地址：http://120.55.162.147/addlongip?username=用户名&white=需要添加的ip
 
-func TestRequest_Get_withProxy(t *testing.T) {
+func TestRequestGetWithProxy(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 
 	resp, err := cli.Get("http://myip.top/", goCurl.Options{
@@ -237,7 +243,7 @@ func TestRequest_Get_withProxy(t *testing.T) {
 // 参数一 > 要下载的资源地址
 // 参数二 > 指定下载路径（服务器最好指定绝对路径）
 // 参数三 > 文件名，如果不设置，那么自动使用被下载的原始文件名
-func TestRequest_Down(t *testing.T) {
+func TestRequestDown(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 	_, err := cli.Down("http://139.196.101.31:2080/GinSkeleton.jpg", "./", "ginskeleton.jpg", goCurl.Options{
 		Timeout: 60.0,
@@ -250,7 +256,7 @@ func TestRequest_Down(t *testing.T) {
 }
 
 // 获取 cookie
-func TestRequest_GetCookies(t *testing.T) {
+func TestRequestGetCookies(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 	resp, err := cli.Get(`https://www.baidu.com`)
 
@@ -268,7 +274,7 @@ func TestRequest_GetCookies(t *testing.T) {
 }
 
 // 提交cookie
-func TestRequest_Post_withCookies_str(t *testing.T) {
+func TestRequestPostWithCookiesStr(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 
 	resp, err := cli.Post("http://127.0.0.1:8091/post-with-cookies", goCurl.Options{
@@ -287,7 +293,7 @@ func TestRequest_Post_withCookies_str(t *testing.T) {
 }
 
 // 提交cookie（二） , 并从 body 体读取返回值（）
-func TestRequest_Post_withCookies_map(t *testing.T) {
+func TestRequestPostWithCookiesMap(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 
 	resp, err := cli.Post("http://127.0.0.1:8091/post-with-cookies", goCurl.Options{
@@ -314,7 +320,7 @@ func TestRequest_Post_withCookies_map(t *testing.T) {
 }
 
 //  Put 方式提交数据
-func TestRequest_Put(t *testing.T) {
+func TestRequestPut(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 
 	resp, err := cli.Put("http://127.0.0.1:8091/put")
@@ -331,7 +337,7 @@ func TestRequest_Put(t *testing.T) {
 }
 
 //  Delete方式提交数据
-func TestRequest_Delete(t *testing.T) {
+func TestRequestDelete(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 
 	resp, err := cli.Delete("http://127.0.0.1:8091/delete")
