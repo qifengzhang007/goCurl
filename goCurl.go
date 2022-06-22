@@ -33,6 +33,8 @@ func CreateHttpClient(opts ...Options) *Request {
 }
 
 // 合并用户提供的header头字段信息，用户提供的header头优先于默认头字段信息
+// @options[0]  用户方法 GET 、POST等提交的参数
+// @options[1]  CreateHttpClient 时初始化的参数
 func mergeDefaultParams(defaultHeaders Options, options ...Options) Options {
 	if len(options) == 0 {
 		return defaultHeader()
@@ -49,20 +51,21 @@ func mergeDefaultParams(defaultHeaders Options, options ...Options) Options {
 		}
 		if len(options) == 2 {
 			// header 头参数参数合并完成后，继续合并以下几个参数:BaseURI 、Timeout
-			if options[0].BaseURI != "" {
-				options[1].BaseURI = options[0].BaseURI
+			if options[0].BaseURI == "" && options[1].BaseURI != "" {
+				options[0].BaseURI = options[1].BaseURI
 			}
-			if options[0].Timeout > 0 {
-				options[1].Timeout = options[0].Timeout
+
+			if options[0].Timeout <= 0 && options[1].Timeout > 0 {
+				options[0].Timeout = options[1].Timeout
 			}
-			if options[0].Proxy != "" {
-				options[1].Proxy = options[0].Proxy
+			if options[0].Proxy == "" && options[1].Proxy != "" {
+				options[0].Proxy = options[1].Proxy
 			}
-			if options[0].Cookies != nil {
-				options[1].Cookies = options[0].Cookies
+			if options[0].Cookies == nil && options[1].Cookies != nil {
+				options[0].Cookies = options[1].Cookies
 			}
-			if options[0].SetResCharset != "" {
-				options[1].SetResCharset = options[0].SetResCharset
+			if options[0].SetResCharset == "" && options[1].SetResCharset != "" {
+				options[0].SetResCharset = options[1].SetResCharset
 			}
 		}
 		return options[0]
