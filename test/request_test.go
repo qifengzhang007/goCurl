@@ -40,13 +40,7 @@ func TestRequestGet(t *testing.T) {
 func TestRequestGet2(t *testing.T) {
 
 	// 创建 http 客户端的时候可以直接填充一些公共参数，后续请求会复用
-	cli := goCurl.CreateHttpClient(goCurl.Options{
-		Headers: map[string]interface{}{
-			"Referer": "http://vip.stock.finance.sina.com.cn",
-		},
-		SetResCharset: "GB18030",
-		BaseURI:       "",
-	})
+	cli := goCurl.CreateHttpClient()
 	resp, err := cli.Get("http://49.232.145.118:20171/api/v1/portal/news?newsType=10&page=1&limit=50")
 	//t.Logf("请求参数：%v\n", resp.GetRequest())
 	if err != nil && resp == nil {
