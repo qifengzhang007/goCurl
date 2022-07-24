@@ -96,7 +96,7 @@ func defaultHeader() Options {
 			"Accept-Encoding":           "",
 			"Accept-Language":           "zh-CN,zh;q=0.9",
 			"Upgrade-Insecure-Requests": "1",
-			"Connection":                "keep-alive",
+			"Connection":                "close",
 			"Cache-Control":             "max-age=0",
 			"Host":                      "",
 		},
