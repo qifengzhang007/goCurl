@@ -40,29 +40,16 @@ func mergeDefaultParams(defaultHeaders Options, options ...Options) Options {
 	if len(options) == 0 {
 		return defaultHeader()
 	} else {
-		for key, value := range defaultHeaders.Headers {
-			if options[0].Headers != nil {
-				if _, exists := options[0].Headers[key]; !exists {
-					if len(options) == 2 {
-						if _, exists2 := options[1].Headers[key]; !exists2 {
-							options[0].Headers[key] = fmt.Sprintf("%v", value)
-						}
-					} else {
-						options[0].Headers[key] = fmt.Sprintf("%v", value)
-					}
-				}
-			} else {
-				options[0].Headers = make(map[string]interface{}, 1)
-				options[0].Headers[key] = fmt.Sprintf("%v", value)
-			}
-		}
+
 		if len(options) == 2 {
+			if options[0].Headers == nil {
+				options[0].Headers = make(map[string]interface{}, 1)
+			}
 			for key, value := range options[1].Headers {
 				if _, exists := options[0].Headers[key]; !exists {
 					options[0].Headers[key] = fmt.Sprintf("%v", value)
 				}
 			}
-
 			// header 头参数参数合并完成后，继续合并以下几个参数:BaseURI 、Timeout等
 			if options[0].BaseURI == "" && options[1].BaseURI != "" {
 				options[0].BaseURI = options[1].BaseURI
@@ -81,6 +68,18 @@ func mergeDefaultParams(defaultHeaders Options, options ...Options) Options {
 				options[0].SetResCharset = options[1].SetResCharset
 			}
 		}
+
+		for key, value := range defaultHeaders.Headers {
+			if options[0].Headers != nil {
+				if _, exists := options[0].Headers[key]; !exists {
+					options[0].Headers[key] = fmt.Sprintf("%v", value)
+				}
+			} else {
+				options[0].Headers = make(map[string]interface{}, 1)
+				options[0].Headers[key] = fmt.Sprintf("%v", value)
+			}
+		}
+
 		return options[0]
 	}
 }
