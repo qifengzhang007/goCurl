@@ -79,15 +79,12 @@ func (r *Response) GetContents() (bodyStr string, err error) {
 	return bodyStr, nil
 }
 
-// Get Response ContentLength
 func (r *Response) GetContentLength() int64 {
 	return r.resp.ContentLength
 }
 
 // GetBody parse response body
 func (r *Response) GetBody() io.ReadCloser {
-	//defer r.resp.Body.Close()
-
 	return r.resp.Body
 }
 

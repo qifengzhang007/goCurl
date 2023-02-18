@@ -15,6 +15,7 @@
 >   11.增加简体中文与utf-8编码互转函数,不管是发送还是接受都随意对字符进行编码转换.  
 >   12.增加 `XML` 格式数据提交，方便对接java类语言开发的 `webservice` 接口.  
 >   13.创建 `httpClient` 对象时使用 `sync.pool` 临时对象池,使客户端的创建更加高效,服务器资源占用更低,满足开发者频繁创建客户端采集数据.    
+>   14.增加 `sse` 客户端, 用于支持、处理 `h5` 推出的 `sse` 数据推送技术 .
 
 ### 安装 goCurl 包  
 ```code 
@@ -46,7 +47,7 @@ go  get github.com/qifengzhang007/goCurl@v1.3.8
         BaseURI    string
         FormParams map[string]interface{}
         JSON       interface{}
-        Timeout    float32   // 超时时间，单位：秒
+        Timeout    float32   // 超时时间，单位：秒， 如果不设置或者设置为 0 表示程序一直等待不自动中断
         Cookies    interface{}
         Proxy      string
         // 如果请求的站点响应头  Header["Content-Type"]  中没有明确的 charset=utf-8 、charset=gb2312 等

@@ -8,7 +8,8 @@ import (
 	"testing"
 )
 
-//  get 网站编码为 gbk
+//	get 网站编码为 gbk
+//
 // 主要测试 get 请求以及自动转换被采集网站的编码，保证返回的数据是正常的
 func TestRequestGet(t *testing.T) {
 
@@ -40,26 +41,33 @@ func TestRequestGet(t *testing.T) {
 func TestRequestGet2(t *testing.T) {
 
 	// 创建 http 客户端的时候可以直接填充一些公共参数，后续请求会复用
-	cli := goCurl.CreateHttpClient()
-	resp, err := cli.Get("http://49.232.145.118:20171/api/v1/portal/news?newsType=10&page=1&limit=50")
-	//t.Logf("请求参数：%v\n", resp.GetRequest())
-	if err != nil && resp == nil {
-		t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
-	}
-	if err != nil {
-		t.Errorf("请求出错：%s\n", err.Error())
-	} else {
-		txt, err := resp.GetContents()
-		if err == nil {
-			t.Logf("请求结果：%s\n", txt)
-		} else {
+	cli := goCurl.CreateHttpClient(goCurl.Options{
+		Headers: map[string]interface{}{
+			"Connection": "keep-alive",
+		},
+	})
+	for i := 1; i < 5; i++ {
+		resp, err := cli.Get("http://49.232.145.118:20171/api/v1/portal/news?newsType=10&page=1&limit=50")
+		//t.Logf("请求参数：%v\n", resp.GetRequest())
+		if err != nil && resp == nil {
 			t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
 		}
+		if err != nil {
+			t.Errorf("请求出错：%s\n", err.Error())
+		} else {
+			txt, err := resp.GetContents()
+			if err == nil {
+				t.Logf("请求结果：%s\n", txt)
+			} else {
+				t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
+			}
+		}
 	}
+
 }
 
-//  https 以及 表单参数
-//  get请求参数如果不是特别长，建议和地址拼接在一起请求,例如： https://www.oschina.net/search?scope=project&q=golang
+// https 以及 表单参数
+// get请求参数如果不是特别长，建议和地址拼接在一起请求,例如： https://www.oschina.net/search?scope=project&q=golang
 func TestRequestGetWithQuery(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 	//  cli.Get 切换成 cli.Post 就是 post 方式提交表单参数
@@ -112,8 +120,8 @@ func TestRequestSendChinese(t *testing.T) {
 
 }
 
-//  post提交 json 数据
-//  注意：这里的 header 头字段 Content-Type 必须设置为 application/json 格式
+// post提交 json 数据
+// 注意：这里的 header 头字段 Content-Type 必须设置为 application/json 格式
 func TestRequestPostWithJSON(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 
@@ -139,8 +147,9 @@ func TestRequestPostWithJSON(t *testing.T) {
 	}
 }
 
-//  post向 webservice接口提交 xml 数据(以表单参数形式提交x-www-form-urlencoded)
-//  webservice测试地址以及接口说明：http://www.webxml.com.cn/WebServices/ChinaZipSearchWebService.asmx/getSupportCity
+//	post向 webservice接口提交 xml 数据(以表单参数形式提交x-www-form-urlencoded)
+//	webservice测试地址以及接口说明：http://www.webxml.com.cn/WebServices/ChinaZipSearchWebService.asmx/getSupportCity
+//
 // 浏览器打开以上地址，F12 可以查看webservice 接口以表单形式是如何发送数据的
 func TestRequestPostFormDataWithXml(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
@@ -167,8 +176,8 @@ func TestRequestPostFormDataWithXml(t *testing.T) {
 	}
 }
 
-//  post向 webservice接口提交 xml 数据（以raw方式提交）
-//  webservice测试地址以及接口说明：http://www.webxml.com.cn/WebServices/ChinaZipSearchWebService.asmx
+// post向 webservice接口提交 xml 数据（以raw方式提交）
+// webservice测试地址以及接口说明：http://www.webxml.com.cn/WebServices/ChinaZipSearchWebService.asmx
 func TestRequestPostRawWithXml(t *testing.T) {
 	cli := goCurl.CreateHttpClient(goCurl.Options{
 		SetResCharset: "utf-8",
@@ -217,8 +226,8 @@ func TestRequestGetWithProxy(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 
 	resp, err := cli.Get("http://myip.top/", goCurl.Options{
-		Timeout: 5.0,
-		Proxy:   "http://39.96.11.196:3211", // 该ip需要自己去申请每日免费试用
+		Timeout: 60,
+		Proxy:   "http://113.241.137.248:4330", // 该ip需要自己去申请每日免费试用
 	})
 	if err != nil {
 		t.Errorf("请求出错：%s\n", err.Error())
@@ -313,7 +322,7 @@ func TestRequestPostWithCookiesMap(t *testing.T) {
 	}
 }
 
-//  Put 方式提交数据
+// Put 方式提交数据
 func TestRequestPut(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 
@@ -330,7 +339,7 @@ func TestRequestPut(t *testing.T) {
 	}
 }
 
-//  Delete方式提交数据
+// Delete方式提交数据
 func TestRequestDelete(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 
@@ -342,6 +351,33 @@ func TestRequestDelete(t *testing.T) {
 	if err == nil {
 		t.Logf("请求结果：%s\n", txt)
 	} else {
+		t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
+	}
+}
+
+// SseGet 通过sse客户端的get请求获取服务端持续推送的数据流
+func TestRequestSseGet(t *testing.T) {
+	sseServerUrl := "https://92.push2.eastmoney.com/api/qt/stock/details/sse?fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55&mpi=2000&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&pos=-0&secid=1.600460&wbp2u=|0|0|0|web"
+	cli := goCurl.CreateHttpClient()
+
+	// SseGet 方法会阻塞目前的代码，如果需要异步接收处理sseClient收到的消息，请使用go协程启动该方法
+	err := cli.SseGet(sseServerUrl, func(msgType, content string) bool {
+
+		switch msgType {
+		case "event":
+			// 事件类型的消息格式
+			t.Logf("(event)事件类型的消息：\n%+v\n", content)
+		case "data":
+			// 数据类型的消息格式
+			t.Logf("服务端推送的业务数据(data)：\n%+v\n", content)
+		}
+
+		// 这里是回调函数的返回值：
+		// true  表示持续接受服务端的推送数据，
+		// false 表示只接受一次服务端的推送数据后，主动关闭客户端不在接受后续数据
+		return true
+	})
+	if err != nil {
 		t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
 	}
 }

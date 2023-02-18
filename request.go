@@ -33,7 +33,7 @@ func (r *Request) Get(uri string, opts ...Options) (*Response, error) {
 	return r.Request("GET", uri, opts...)
 }
 
-// Get method  download files
+// Down method  download files
 func (r *Request) Down(resourceUrl string, savePath, saveName string, opts ...Options) (bool, error) {
 	var vError error
 	var vResponse *Response
@@ -64,12 +64,12 @@ func (r *Request) saveFile(body io.ReadCloser, fileName string) (bool, error) {
 		_ = body.Close()
 		_ = file.Close()
 	}()
-	reader := bufio.NewReaderSize(body, 1024*50) //相当于一个临时缓冲区(设置为可以单次存储5M的文件)，每次读取以后就把原始数据重新加载一份，等待下一次读取
+	reader := bufio.NewReader(body)
 	if err != nil {
 		return false, err
 	}
 	writer := bufio.NewWriter(file)
-	buff := make([]byte, 50*1024)
+	buff := make([]byte, 4096)
 
 	for {
 		currReadSize, readerErr := reader.Read(buff)
@@ -112,6 +112,42 @@ func (r *Request) Patch(uri string, opts ...Options) (*Response, error) {
 // Delete send delete request
 func (r *Request) Delete(uri string, opts ...Options) (*Response, error) {
 	return r.Request("DELETE", uri, opts...)
+}
+
+// SseGet  sse客户端通过get请求，持续获取服务端推送的数据流
+func (r *Request) SseGet(uri string, fn func(msgType, content string) bool) error {
+	headerOpt := Options{
+		Headers: map[string]interface{}{
+			"Content-Type":  "text/event-stream",
+			"Cache-Control": "no-cache",
+			"Connection":    "keep-alive",
+		},
+		Timeout: -1,
+	}
+	if resp, err := r.Get(uri, headerOpt); err == nil {
+		body := resp.GetBody()
+		defer func() {
+			_ = body.Close()
+		}()
+		ioReader := bufio.NewReader(body)
+		for {
+			if bys, err := ioReader.ReadBytes('\n'); err == nil && len(bys) > 4 {
+				delim := []byte{':', ' '}
+				byteSliceSlice := bytes.Split(bys, delim)
+				if len(byteSliceSlice) == 2 {
+					if !fn(string(byteSliceSlice[0]), string(byteSliceSlice[1])) {
+						return nil
+					}
+				}
+			} else {
+				// 如果ioreader关联的缓冲区没有内容，通过休眠5毫秒让出协程（避免死循环导致cpu占用率过高）
+				// 相对网络请求的耗时, 3ms 时间几乎不构成任何影响
+				time.Sleep(time.Millisecond * 3)
+			}
+		}
+	} else {
+		return errors.New(err.Error())
+	}
 }
 
 // Options send options request
@@ -176,10 +212,11 @@ func (r *Request) Request(method, uri string, opts ...Options) (*Response, error
 }
 
 func (r *Request) parseTimeout() {
-	if r.opts.Timeout == 0 {
-		r.opts.Timeout = 30
+	if r.opts.Timeout > 0 {
+		r.opts.timeout = time.Duration(r.opts.Timeout*1000) * time.Millisecond
+	} else {
+		r.opts.Timeout = 0
 	}
-	r.opts.timeout = time.Duration(r.opts.Timeout*1000) * time.Millisecond
 }
 
 func (r *Request) parseClient() {
@@ -308,7 +345,7 @@ func (r *Request) parseGetFormData() string {
 	}
 }
 
-//（接受到的）简体中文 转换为 utf-8
+// （接受到的）简体中文 转换为 utf-8
 func (r *Request) SimpleChineseToUtf8(vBytes []byte) string {
 	return mahonia.NewDecoder("GB18030").ConvertString(string(vBytes))
 }

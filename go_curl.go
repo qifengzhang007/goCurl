@@ -55,7 +55,7 @@ func mergeDefaultParams(defaultHeaders Options, options ...Options) Options {
 				options[0].BaseURI = options[1].BaseURI
 			}
 
-			if options[0].Timeout <= 0 && options[1].Timeout > 0 {
+			if options[0].Timeout <= 0 && options[1].Timeout >= 0 {
 				options[0].Timeout = options[1].Timeout
 			}
 			if options[0].Proxy == "" && options[1].Proxy != "" {
