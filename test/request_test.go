@@ -360,8 +360,16 @@ func TestRequestSseGet(t *testing.T) {
 	sseServerUrl := "https://92.push2.eastmoney.com/api/qt/stock/details/sse?fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55&mpi=2000&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&pos=-0&secid=1.600460&wbp2u=|0|0|0|web"
 	cli := goCurl.CreateHttpClient()
 
+	var options = goCurl.Options{
+		Headers: map[string]interface{}{
+			"Content-Type":  "text/event-stream",
+			"Cache-Control": "no-cache",
+			"Connection":    "keep-alive",
+		},
+		Timeout: -1,
+	}
 	// SseGet 方法会阻塞目前的代码，如果需要异步接收处理sseClient收到的消息，请使用go协程启动该方法
-	err := cli.SseGet(sseServerUrl, func(msgType, content string) bool {
+	err := cli.Sse("get", sseServerUrl, func(msgType, content string) bool {
 
 		switch msgType {
 		case "event":
@@ -376,8 +384,69 @@ func TestRequestSseGet(t *testing.T) {
 		// true  表示持续接受服务端的推送数据，
 		// false 表示只接受一次服务端的推送数据后，主动关闭客户端不在接受后续数据
 		return true
-	})
+	}, options)
 	if err != nil {
 		t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
 	}
+
+}
+
+// Sse 通过sse客户端的post方式请求 chatgpt 服务器接口
+func TestRequestSse(t *testing.T) {
+
+	// 定义一个 chatgpt 聊天发送的结构体
+	type chaGpt struct {
+		Model    string `json:"model"`
+		Stream   bool   `json:"stream"`
+		Messages []struct {
+			Role    string `json:"role"`
+			Content string `json:"content"`
+		} `json:"messages"`
+	}
+	// 该接口
+	sseServerUrl := "https://api.openai.com/v1/engines"
+	apiKey := "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" // 请填写自己的openai apikeuy，本次测试的很快就会失效
+	cli := goCurl.CreateHttpClient()
+
+	var chat = goCurl.Options{
+		Headers: map[string]interface{}{
+			"Authorization": "Bearer " + apiKey,
+			"Content-Type":  "application/json",
+			"Cache-Control": "no-cache",
+			"Connection":    "keep-alive",
+		},
+		Timeout: -1,
+		JSON: chaGpt{
+			Model:  "gpt-3.5-turbo",
+			Stream: true,
+			Messages: []struct {
+				Role    string `json:"role"`
+				Content string `json:"content"`
+			}{
+				{Role: "user", Content: "请列出一份go语言面试常见的30个核心知识点"},
+			},
+		},
+	}
+	// SseGet 方法会阻塞目前的代码，如果需要异步接收处理sseClient收到的消息，请使用go协程启动该方法
+	err := cli.Sse("post", sseServerUrl, func(msgType, content string) bool {
+		//fmt.Printf("收到chatgpt原始事件：%+v\n", msgType)
+		switch msgType {
+		case "event":
+			// 事件类型的消息格式
+			t.Logf("(event)事件类型的消息：\n%+v\n", content)
+		case "data":
+			// 数据类型的消息格式,
+			t.Logf("服务端推送的业务数据(data)：\n%+v\n", content)
+		}
+
+		// 这里是回调函数的返回值：
+		// true  表示持续接受服务端的推送数据，
+		// false 表示只接受一次服务端的推送数据后，主动关闭客户端不在接受后续数据
+		// 例如：在 chatGpt 聊天场景中，最后一行返回了 [DONE] ，如果返回的字符串为 [DONE]  直接return false 结束整个请求的生命周期
+		return true
+	}, chat)
+	if err != nil {
+		t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
+	}
+
 }
