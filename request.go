@@ -114,17 +114,20 @@ func (r *Request) Delete(uri string, opts ...Options) (*Response, error) {
 	return r.Request("DELETE", uri, opts...)
 }
 
-// SseGet  sse客户端通过get请求，持续获取服务端推送的数据流
-func (r *Request) SseGet(uri string, fn func(msgType, content string) bool) error {
-	headerOpt := Options{
-		Headers: map[string]interface{}{
-			"Content-Type":  "text/event-stream",
-			"Cache-Control": "no-cache",
-			"Connection":    "keep-alive",
-		},
-		Timeout: -1,
+// Sse  客户端请求，持续获取服务端推送的数据流
+func (r *Request) Sse(method, uri string, fn func(msgType, content string) bool, options ...Options) (err error) {
+	var tmpOptions = defaultHeader()
+	if len(options) > 0 {
+		tmpOptions = mergeDefaultParams(tmpOptions, options[0])
 	}
-	if resp, err := r.Get(uri, headerOpt); err == nil {
+	resp := &Response{}
+	if strings.ToUpper(method) == http.MethodGet {
+		resp, err = r.Get(uri, tmpOptions)
+	} else if strings.ToUpper(method) == http.MethodPost {
+		resp, err = r.Post(uri, tmpOptions)
+	}
+
+	if err == nil {
 		body := resp.GetBody()
 		defer func() {
 			_ = body.Close()
@@ -140,7 +143,7 @@ func (r *Request) SseGet(uri string, fn func(msgType, content string) bool) erro
 					}
 				}
 			} else {
-				// 如果ioreader关联的缓冲区没有内容，通过休眠5毫秒让出协程（避免死循环导致cpu占用率过高）
+				// 如果ioreader关联的缓冲区没有内容，通过休眠3毫秒让出协程（避免死循环导致cpu占用率过高）
 				// 相对网络请求的耗时, 3ms 时间几乎不构成任何影响
 				time.Sleep(time.Millisecond * 3)
 			}
