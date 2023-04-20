@@ -368,7 +368,7 @@ func TestRequestSseGet(t *testing.T) {
 		},
 		Timeout: -1,
 	}
-	// SseGet 方法会阻塞目前的代码，如果需要异步接收处理sseClient收到的消息，请使用go协程启动该方法
+	// Sse 方法会阻塞目前的代码，如果需要异步接收处理sseClient收到的消息，请使用go协程启动该方法
 	err := cli.Sse("get", sseServerUrl, func(msgType, content string) bool {
 
 		switch msgType {
@@ -427,7 +427,7 @@ func TestRequestSse(t *testing.T) {
 			},
 		},
 	}
-	// SseGet 方法会阻塞目前的代码，如果需要异步接收处理sseClient收到的消息，请使用go协程启动该方法
+	// Sse 方法会阻塞目前的代码，如果需要异步接收处理sseClient收到的消息，请使用go协程启动该方法
 	err := cli.Sse("post", openaiChatUrl, func(msgType, content string) bool {
 		//fmt.Printf("收到chatgpt原始事件：%+v\n", msgType)
 		switch msgType {
