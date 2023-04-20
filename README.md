@@ -19,8 +19,8 @@
 
 ### 安装 goCurl 包  
 ```code 
-# 请自行在tag标签检查最新版本，本次使用 v1.3.9
-go  get github.com/qifengzhang007/goCurl@v1.3.9
+# 请自行在tag标签检查最新版本，本次使用 v1.4.0
+go  get github.com/qifengzhang007/goCurl@v1.4.0
 
 ```
 
