@@ -382,7 +382,7 @@ func TestRequestSseGet(t *testing.T) {
 
 		// 这里是回调函数的返回值：
 		// true  表示持续接受服务端的推送数据，
-		// false 表示只接受一次服务端的推送数据后，主动关闭客户端不在接受后续数据
+		// false 表示接受一次服务端的推送数据后，主动关闭客户端不在接受后续数据
 		return true
 	}, options)
 	if err != nil {
@@ -441,7 +441,7 @@ func TestRequestSse(t *testing.T) {
 
 		// 这里是回调函数的返回值：
 		// true  表示持续接受服务端的推送数据，
-		// false 表示只接受一次服务端的推送数据后，主动关闭客户端不在接受后续数据
+		// false 表示接受一次服务端的推送数据后，主动关闭客户端不在接受后续数据
 		// 例如：在 chatGpt 聊天场景中，最后一行返回了 [DONE] ，如果返回的字符串为 [DONE]  直接return false 结束整个请求的生命周期
 		return true
 	}, chat)
