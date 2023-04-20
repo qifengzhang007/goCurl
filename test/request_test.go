@@ -403,8 +403,8 @@ func TestRequestSse(t *testing.T) {
 			Content string `json:"content"`
 		} `json:"messages"`
 	}
-	// 该接口
-	sseServerUrl := "https://api.openai.com/v1/engines"
+	// chatGpt 聊天接口
+	openaiChatUrl := "https://api.openai.com/v1/chat/completions"
 	apiKey := "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" // 请填写自己的openai apikeuy，本次测试的很快就会失效
 	cli := goCurl.CreateHttpClient()
 
@@ -428,7 +428,7 @@ func TestRequestSse(t *testing.T) {
 		},
 	}
 	// SseGet 方法会阻塞目前的代码，如果需要异步接收处理sseClient收到的消息，请使用go协程启动该方法
-	err := cli.Sse("post", sseServerUrl, func(msgType, content string) bool {
+	err := cli.Sse("post", openaiChatUrl, func(msgType, content string) bool {
 		//fmt.Printf("收到chatgpt原始事件：%+v\n", msgType)
 		switch msgType {
 		case "event":
