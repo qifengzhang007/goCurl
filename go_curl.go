@@ -8,7 +8,7 @@ import (
 )
 
 var curSiteCookiesJar, _ = cookiejar.New(nil)
-var httpCli = sync.Pool{
+var pCliPool = sync.Pool{
 	New: func() interface{} {
 		return &http.Client{
 			Jar: curSiteCookiesJar,
@@ -18,8 +18,8 @@ var httpCli = sync.Pool{
 
 // 创建一个 HttpClient 客户端用于发送请求
 func CreateHttpClient(opts ...Options) *Request {
-	var hClient = httpCli.Get().(*http.Client)
-	defer httpCli.Put(hClient)
+	var hClient = pCliPool.Get().(*http.Client)
+	defer pCliPool.Put(hClient)
 	req := &Request{
 		cli: hClient,
 	}

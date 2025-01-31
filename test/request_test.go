@@ -78,6 +78,7 @@ func TestRequestGetWithQuery(t *testing.T) {
 			"scope":  "project",
 			"q":      "golang",
 		},
+		SetResCharset: "utf-8",
 		Headers: map[string]interface{}{
 			"Content-Type": "application/x-www-form-urlencoded;charset=gb2312",
 		},
