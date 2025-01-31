@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/axgle/mahonia"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/cookiejar"
@@ -55,7 +54,7 @@ func (r *Response) GetContents() (bodyStr string, err error) {
 		_ = r.resp.Body.Close()
 	}()
 	temp := strings.ReplaceAll(fmt.Sprintf("%v", r.resp.Header["Content-Type"]), " ", "")
-	body, err := ioutil.ReadAll(r.resp.Body)
+	body, err := io.ReadAll(r.resp.Body)
 	if err != nil {
 		return "", err
 	}
