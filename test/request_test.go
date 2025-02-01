@@ -67,24 +67,54 @@ func TestRequestGet2(t *testing.T) {
 }
 
 // https 以及 表单参数
-// get请求参数如果不是特别长，建议和地址拼接在一起请求,例如： https://www.oschina.net/search?scope=project&q=golang
+// get请求参数如果不是特别长，建议和地址拼接在一起请求,例如： https://www.oschina.net/search?scope=project&q=golang&random=123215
 func TestRequestGetWithQuery(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 	//  cli.Get 切换成 cli.Post 就是 post 方式提交表单参数
 	//resp, err := cli.Post("http://127.0.0.1:8091/postWithFormParams", goCurl.Options{
-	resp, err := cli.Get("https://www.oschina.net/search", goCurl.Options{
-		FormParams: map[string]interface{}{
-			"random": 12345,
-			"scope":  "project",
-			"q":      "golang",
-		},
-		SetResCharset: "utf-8",
+	resp, err := cli.Get("https://www.oschina.net/search?scope=project&q=golang&random=123215", goCurl.Options{
+		SetResCharset: "UTF-8",
 		Headers: map[string]interface{}{
-			"Content-Type": "application/x-www-form-urlencoded;charset=gb2312",
+			"Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
 		},
 	})
 	if err != nil {
 		t.Errorf("osChina请求出错：%s\n", err.Error())
+	} else {
+		txt, err := resp.GetContents()
+		if err == nil {
+			t.Logf("请求结果：%s\n", txt)
+		} else {
+			t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
+		}
+	}
+
+}
+
+// https 以及 表单参数
+// get请求参数如果不是特别长，建议和地址拼接在一起请求,例如： https://www.oschina.net/search?scope=project&q=golang&random=123215
+func TestRequestGetWithQuery2(t *testing.T) {
+	targetUrl := `https://datacenter-web.eastmoney.com/api/data/v1/get`
+	cli := goCurl.CreateHttpClient()
+	resp, err := cli.Get(targetUrl, goCurl.Options{
+		FormParams: map[string]interface{}{
+			"sortColumns": "BILLBOARD_NET_AMT,TRADE_DATE,SECURITY_CODE",
+			"sortTypes":   "-1,-1,1",
+			"pageSize":    50,
+			"pageNumber":  1,
+			"reportName":  "RPT_DAILYBILLBOARD_DETAILSNEW",
+			"columns":     "SECURITY_CODE,SECUCODE,SECURITY_NAME_ABBR,TRADE_DATE,EXPLAIN,CLOSE_PRICE,CHANGE_RATE,BILLBOARD_NET_AMT,BILLBOARD_BUY_AMT,BILLBOARD_SELL_AMT,BILLBOARD_DEAL_AMT,ACCUM_AMOUNT,DEAL_NET_RATIO,DEAL_AMOUNT_RATIO,TURNOVERRATE,FREE_MARKET_CAP,EXPLANATION,D1_CLOSE_ADJCHRATE,D2_CLOSE_ADJCHRATE,D5_CLOSE_ADJCHRATE,D10_CLOSE_ADJCHRATE,SECURITY_TYPE_CODE",
+			"source":      "WEB",
+			"client":      "WEB",
+			"filter":      "(TRADE_DATE<='2024-11-06')(TRADE_DATE>='2024-11-06')",
+		},
+		SetResCharset: "utf-8",
+		Headers: map[string]interface{}{
+			"Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+		},
+	})
+	if err != nil {
+		t.Errorf("eastmoney 请求出错：%s\n", err.Error())
 	} else {
 		txt, err := resp.GetContents()
 		if err == nil {

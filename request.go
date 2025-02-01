@@ -20,12 +20,12 @@ import (
 
 // Request object
 type Request struct {
-	opts                 Options
-	cli                  *http.Client
-	req                  *http.Request
-	body                 io.Reader
-	subGetFormDataParams string
-	cookiesJar           *cookiejar.Jar
+	opts           Options
+	cli            *http.Client
+	req            *http.Request
+	body           io.Reader
+	formDataParams string
+	cookiesJar     *cookiejar.Jar
 }
 
 // Get send get request
@@ -165,17 +165,16 @@ func (r *Request) Request(method, uri string, opts ...Options) (*Response, error
 	}
 	switch method {
 	case http.MethodGet, http.MethodDelete:
-		uri = r.opts.BaseURI + uri + r.parseGetFormData()
+		uri = r.opts.BaseURI + r.parseFormData(method, uri)
 		req, err := http.NewRequest(method, uri, nil)
 		if err != nil {
 			return nil, err
 		}
-
 		r.req = req
 	case http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodOptions:
 		// parse body
 		r.parseBody()
-		uri = r.opts.BaseURI + uri + r.parseGetFormData()
+		uri = r.opts.BaseURI + r.parseFormData(method, uri)
 		req, err := http.NewRequest(method, uri, r.body)
 		if err != nil {
 			return nil, err
@@ -326,9 +325,23 @@ func (r *Request) parseBody() {
 }
 
 // 解析 get 方式传递的 formData(application/x-www-form-urlencoded)
-func (r *Request) parseGetFormData() string {
-	if r.opts.FormParams != nil {
-		values := url.Values{}
+func (r *Request) parseFormData(method, uri string) string {
+	uriPre := ""
+	uriParse, err := url.Parse(uri)
+	values := url.Values{}
+	if err != nil {
+		return ""
+	}
+
+	uriPre = uriParse.Scheme + "://" + uriParse.Host + uriParse.Path
+	for _, item := range strings.Split(uriParse.RawQuery, "&") {
+		if key, val, find := strings.Cut(item, "="); find {
+			val = fmt.Sprintf("%v", val)
+			values.Set(key, val)
+		}
+	}
+
+	if r.opts.FormParams != nil && (method == http.MethodGet || method == http.MethodDelete) {
 		for k, v := range r.opts.FormParams {
 			if vv, ok := v.([]string); ok {
 				for _, vvv := range vv {
@@ -336,16 +349,16 @@ func (r *Request) parseGetFormData() string {
 						values.Add(k, vvv)
 					}
 				}
-				continue
 			}
 			vv := fmt.Sprintf("%v", v)
 			values.Set(k, vv)
 		}
-		r.subGetFormDataParams = values.Encode()
-		return "?" + r.subGetFormDataParams
-	} else {
-		return ""
 	}
+	queryParams := ""
+	if len(values.Encode()) > 0 {
+		queryParams = "?" + values.Encode()
+	}
+	return uriPre + queryParams
 }
 
 // （接受到的）简体中文 转换为 utf-8
