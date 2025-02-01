@@ -9,11 +9,13 @@ import (
 	"fmt"
 	"github.com/axgle/mahonia"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -26,11 +28,32 @@ type Request struct {
 	body           io.Reader
 	formDataParams string
 	cookiesJar     *cookiejar.Jar
+	fileUpload     FileUpload
 }
 
 // Get send get request
 func (r *Request) Get(uri string, opts ...Options) (*Response, error) {
 	return r.Request("GET", uri, opts...)
+}
+
+// Post send post request
+func (r *Request) Post(uri string, opts ...Options) (*Response, error) {
+	return r.Request("POST", uri, opts...)
+}
+
+// Put send put request
+func (r *Request) Put(uri string, opts ...Options) (*Response, error) {
+	return r.Request("PUT", uri, opts...)
+}
+
+// Patch send patch request
+func (r *Request) Patch(uri string, opts ...Options) (*Response, error) {
+	return r.Request("PATCH", uri, opts...)
+}
+
+// Delete send delete request
+func (r *Request) Delete(uri string, opts ...Options) (*Response, error) {
+	return r.Request("DELETE", uri, opts...)
 }
 
 // Down method  download files
@@ -94,24 +117,34 @@ func (r *Request) saveFile(body io.ReadCloser, fileName string) (bool, error) {
 	}
 }
 
-// Post send post request
-func (r *Request) Post(uri string, opts ...Options) (*Response, error) {
-	return r.Request("POST", uri, opts...)
-}
+// UploadFile
+// @url 文件上传地址
+// @formFileName 服务端接受文件表单的键名，例如：file
+// @filePath 待上传的文件完整路径
+func (r *Request) UploadFile(uri, formFileName, filePath string, opts ...Options) (resp *Response, err error) {
+	var file *os.File
+	var formFileIoWrite io.Writer
 
-// Put send put request
-func (r *Request) Put(uri string, opts ...Options) (*Response, error) {
-	return r.Request("PUT", uri, opts...)
-}
+	// 打开要上传的文件
+	if file, err = os.Open(filePath); err != nil {
+		return nil, err
+	}
+	defer file.Close()
 
-// Patch send patch request
-func (r *Request) Patch(uri string, opts ...Options) (*Response, error) {
-	return r.Request("PATCH", uri, opts...)
-}
+	// 创建一个缓冲区来存储multipart表单数据
+	r.fileUpload.multipartWrite = multipart.NewWriter(&r.fileUpload.fileUploadBody)
+	// 创建一个表单文件字段
+	fmt.Println("filepath.Base(filePath):   " + filepath.Base(filePath))
+	if formFileIoWrite, err = r.fileUpload.multipartWrite.CreateFormFile(formFileName, filePath); err != nil {
+		return nil, err
+	}
 
-// Delete send delete request
-func (r *Request) Delete(uri string, opts ...Options) (*Response, error) {
-	return r.Request("DELETE", uri, opts...)
+	// 将文件内容复制到表单文件字段中
+	if _, err = io.Copy(formFileIoWrite, file); err != nil {
+		return nil, err
+	}
+
+	return r.Request(postWithFileUpload, uri, opts...)
 }
 
 // Sse  客户端请求，持续获取服务端推送的数据流
@@ -179,10 +212,17 @@ func (r *Request) Request(method, uri string, opts ...Options) (*Response, error
 		if err != nil {
 			return nil, err
 		}
-
+		r.req = req
+	case postWithFileUpload:
+		r.parseBodyWithFileUpload()
+		uri = r.opts.BaseURI + r.parseFormData(method, uri)
+		req, err := http.NewRequest(http.MethodPost, uri, r.body)
+		if err != nil {
+			return nil, err
+		}
 		r.req = req
 	default:
-		return nil, errors.New("invalid request method")
+		return nil, errors.New(invalidMethod)
 	}
 	r.opts.Headers["Host"] = fmt.Sprintf("%v", r.req.Host)
 
@@ -322,6 +362,30 @@ func (r *Request) parseBody() {
 	}
 
 	return
+}
+
+func (r *Request) parseBodyWithFileUpload() {
+	if r.opts.FormParams != nil {
+		values := url.Values{}
+		for k, v := range r.opts.FormParams {
+			if vv, ok := v.([]string); ok {
+				for _, vvv := range vv {
+					if strings.ReplaceAll(vvv, " ", "") != "" {
+						values.Add(k, vvv)
+						_ = r.fileUpload.multipartWrite.WriteField(k, vvv)
+					}
+				}
+			}
+			vv := fmt.Sprintf("%v", v)
+			_ = r.fileUpload.multipartWrite.WriteField(k, vv)
+		}
+	}
+	// 关闭multipart writer以完成表单数据的写入
+	_ = r.fileUpload.multipartWrite.Close()
+
+	r.opts.Headers["Content-Type"] = r.fileUpload.multipartWrite.FormDataContentType()
+	r.body = &r.fileUpload.fileUploadBody
+
 }
 
 // 解析 get 方式传递的 formData(application/x-www-form-urlencoded)

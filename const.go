@@ -8,4 +8,8 @@ const (
 	proxyError = "代理设置错误，一般是设置的代理ip地址不可用 "
 	// 下载的目标文件内容为空
 	downloadFileIsEmpty = "被下载的文件内容为空"
+	// 无效的请求方式
+	invalidMethod = "无效的请求方式"
+	// 文件上传请求方式(中间过程使用)
+	postWithFileUpload = "PostWithFileUpload"
 )

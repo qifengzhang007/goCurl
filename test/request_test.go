@@ -289,6 +289,26 @@ func TestRequestDown(t *testing.T) {
 	}
 }
 
+// 文件上传
+// 参数一 > 要上传的资源地址
+// 参数二 > 文件表单名称(对方服务器接受文件的表单名，例如：file)
+// 参数三 > 指定上传路径（服务器最好指定绝对路径）
+func TestRequestUpload(t *testing.T) {
+	cli := goCurl.CreateHttpClient()
+	// 测试的文件大小为: 438M
+	resp, err := cli.UploadFile("http://127.0.0.1:20201/admin/upload/files", "file", "E:/音乐资源/试音碟-WAV.SQ.zip", goCurl.Options{
+		Headers: map[string]interface{}{
+			"Authorization": "Bear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxOCwidXNlcl9uYW1lIjoiYWRtaW4wODE0IiwicGhvbmUiOiIiLCJleHAiOjE3Mzg0NjE3MjEsIm5iZiI6MTczODQzMjkxMX0.eVI5yha2eGxbp71rUUc0aE51vElBHlcsQ547vNmYDUw",
+		},
+	})
+	if err == nil {
+		txt, _ := resp.GetContents()
+		t.Log("上传完成，请检查目标站点是否已经正确存储，返回信息：" + txt)
+	} else {
+		t.Errorf("单元测试失败,文件上传失败，相关错误：%s", err.Error())
+	}
+}
+
 // 获取 cookie
 func TestRequestGetCookies(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
