@@ -3,7 +3,7 @@ package test
 import (
 	"fmt"
 	"github.com/qifengzhang007/goCurl"
-	"io/ioutil"
+	"io"
 	"log"
 	"testing"
 )
@@ -346,7 +346,7 @@ func TestRequestPostWithCookiesMap(t *testing.T) {
 	}()
 	// 如果请求的返回结果是从body体读取的二进制数据，必须使用 body.Close()  函数关闭
 	// 此外必须注意的是，该函数是直接从缓冲区获取的二进制，对方的编码类型如果有中文（gbk系列）就会是乱码,需要自己转换，转换代码参见 getContents（） 函数
-	if bytes, err := ioutil.ReadAll(body); err == nil {
+	if bytes, err := io.ReadAll(body); err == nil {
 		t.Logf("%s", bytes)
 	} else {
 		t.Errorf("单元测试失败，错误明细：%s\n", err.Error())
