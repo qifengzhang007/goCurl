@@ -298,7 +298,7 @@ func TestRequestUpload(t *testing.T) {
 	// 测试的文件大小为: 438M
 	resp, err := cli.UploadFile("http://127.0.0.1:20201/admin/upload/files", "file", "E:/音乐资源/试音碟-WAV.SQ.zip", goCurl.Options{
 		Headers: map[string]interface{}{
-			"Authorization": "Bear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxOCwidXNlcl9uYW1lIjoiYWRtaW4wODE0IiwicGhvbmUiOiIiLCJleHAiOjE3Mzg0NjE3MjEsIm5iZiI6MTczODQzMjkxMX0.eVI5yha2eGxbp71rUUc0aE51vElBHlcsQ547vNmYDUw",
+			"Authorization": "Bear Demo-yourToken",
 		},
 	})
 	if err == nil {
@@ -456,7 +456,7 @@ func TestRequestSse(t *testing.T) {
 	}
 	// chatGpt 聊天接口
 	openaiChatUrl := "https://api.openai.com/v1/chat/completions"
-	apiKey := "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" // 请填写自己的openai apikeuy，本次测试的很快就会失效
+	apiKey := "sk-DemoXxxxxx" // 请填写自己的openai apikeuy，本次测试的很快就会失效
 	cli := goCurl.CreateHttpClient()
 
 	var chat = goCurl.Options{
