@@ -143,9 +143,9 @@ func (r *Request) Sse(method, uri string, fn func(msgType, content string) bool,
 					}
 				}
 			} else {
-				// 如果ioreader关联的缓冲区没有内容，通过休眠3毫秒让出协程（避免死循环导致cpu占用率过高）
-				// 相对网络请求的耗时, 3ms 时间几乎不构成任何影响
-				time.Sleep(time.Millisecond * 3)
+				// 如果ioreader关联的缓冲区没有内容，休眠5毫秒（避免死循环导致cpu占用率过高）
+				// 相对网络请求的耗时, 5ms 时间几乎不构成任何影响
+				time.Sleep(time.Millisecond * 5)
 			}
 		}
 	} else {
