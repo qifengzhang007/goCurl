@@ -15,7 +15,6 @@ import (
 	"net/url"
 	"os"
 	"path"
-	"path/filepath"
 	"strings"
 	"time"
 )
@@ -134,7 +133,6 @@ func (r *Request) UploadFile(uri, formFileName, filePath string, opts ...Options
 	// 创建一个缓冲区来存储multipart表单数据
 	r.fileUpload.multipartWrite = multipart.NewWriter(&r.fileUpload.fileUploadBody)
 	// 创建一个表单文件字段
-	fmt.Println("filepath.Base(filePath):   " + filepath.Base(filePath))
 	if formFileIoWrite, err = r.fileUpload.multipartWrite.CreateFormFile(formFileName, filePath); err != nil {
 		return nil, err
 	}
