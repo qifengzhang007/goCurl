@@ -21,8 +21,8 @@
 ### 安装 goCurl 包  
 ```code 
 
-# 请自行在tag标签检查最新版本，本次使用 v1.5.0
-go  get github.com/qifengzhang007/goCurl@v1.5.0
+# 请自行在tag标签检查最新版本，本次使用 v1.5.1
+go  get github.com/qifengzhang007/goCurl@v1.5.1
 
 ```
 
@@ -179,7 +179,7 @@ Content-Type: application/javascript; charset=GB18030
 		},
 		# 这里手动设置对方站点编码类型为 utf-8，其他可选项：GB18030 （GBK 和 GB2312 请使用 GB18030 代替）
 		SetResCharset: "utf-8",
-		Timeout:       10,
+		Timeout:       10,   //  超时时间，单位秒，大于0时生效，小于等于0均为不超时(无限等待请求结果)
 	})
 
 ```
