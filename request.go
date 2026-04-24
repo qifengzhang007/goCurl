@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/axgle/mahonia"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -17,6 +16,8 @@ import (
 	"path"
 	"strings"
 	"time"
+
+	"github.com/axgle/mahonia"
 )
 
 // Request object
@@ -147,9 +148,11 @@ func (r *Request) UploadFile(uri, formFileName, filePath string, opts ...Options
 
 // Sse  客户端请求，持续获取服务端推送的数据流
 func (r *Request) Sse(method, uri string, fn func(msgType, content string) bool, options ...Options) (err error) {
-	var tmpOptions = defaultHeader()
+	var tmpOptions Options
 	if len(options) > 0 {
-		tmpOptions = mergeDefaultParams(tmpOptions, options[0])
+		tmpOptions = mergeDefaultParams(defaultHeader(), Options{}, options[0])
+	} else {
+		tmpOptions = defaultHeader()
 	}
 	resp := &Response{}
 	if strings.ToUpper(method) == http.MethodGet {
@@ -192,7 +195,7 @@ func (r *Request) Options(uri string, opts ...Options) (*Response, error) {
 // Request send request
 func (r *Request) Request(method, uri string, opts ...Options) (*Response, error) {
 	if len(opts) > 0 {
-		r.opts = mergeDefaultParams(defaultHeader(), opts[0], r.opts)
+		r.opts = mergeDefaultParams(defaultHeader(), r.opts, opts[0])
 	}
 	switch method {
 	case http.MethodGet, http.MethodDelete:
@@ -242,6 +245,7 @@ func (r *Request) Request(method, uri string, opts ...Options) (*Response, error
 		cookiesJar:    r.cookiesJar,
 		err:           err,
 		setResCharset: r.opts.SetResCharset,
+		formParams:    r.opts.FormParams,
 	}
 
 	if err != nil {
@@ -348,7 +352,11 @@ func (r *Request) parseBody() {
 		b, err := json.Marshal(r.opts.JSON)
 		if err == nil {
 			r.body = bytes.NewReader(b)
-
+			if r.opts.Headers != nil {
+				if _, exists := r.opts.Headers["Content-Type"]; !exists {
+					r.opts.Headers["Content-Type"] = "application/json"
+				}
+			}
 			return
 		}
 	}

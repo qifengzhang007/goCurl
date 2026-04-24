@@ -2,10 +2,11 @@ package test
 
 import (
 	"fmt"
-	"github.com/qifengzhang007/goCurl"
 	"io"
 	"log"
 	"testing"
+
+	"github.com/qifengzhang007/goCurl"
 )
 
 //	get 网站编码为 gbk
@@ -117,6 +118,7 @@ func TestRequestGetWithQuery2(t *testing.T) {
 		t.Errorf("eastmoney 请求出错：%s\n", err.Error())
 	} else {
 		txt, err := resp.GetContents()
+		t.Logf("所有请求参数：%+v\n", resp.GetRequest())
 		if err == nil {
 			t.Logf("请求结果：%s\n", txt)
 		} else {

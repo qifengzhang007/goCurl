@@ -1,30 +1,20 @@
 package goCurl
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/cookiejar"
-	"sync"
 )
 
 var curSiteCookiesJar, _ = cookiejar.New(nil)
-var pCliPool = sync.Pool{
-	New: func() interface{} {
-		return &http.Client{
-			Jar: curSiteCookiesJar,
-		}
-	},
-}
 
-// 创建一个 HttpClient 客户端用于发送请求
 func CreateHttpClient(opts ...Options) *Request {
-	var hClient = pCliPool.Get().(*http.Client)
-	defer pCliPool.Put(hClient)
 	req := &Request{
-		cli: hClient,
+		cli: &http.Client{
+			Jar: curSiteCookiesJar,
+		},
 	}
 	if len(opts) > 0 {
-		req.opts = mergeDefaultParams(defaultHeader(), opts[0])
+		req.opts = mergeDefaultParams(defaultHeader(), opts[0], Options{})
 	} else {
 		req.opts = defaultHeader()
 	}
@@ -32,56 +22,93 @@ func CreateHttpClient(opts ...Options) *Request {
 	return req
 }
 
-// 合并用户提供的header头字段信息，用户提供的header头优先于默认头字段信息
-// @defaultHeaders 默认 header 参数
-// @options[0]  用户方法 GET 、POST等提交的参数
-// @options[1]  CreateHttpClient 时初始化的参数
-func mergeDefaultParams(defaultHeaders Options, options ...Options) Options {
-	if len(options) == 0 {
-		return defaultHeader()
-	} else {
+// mergeDefaultParams merges default, client-level, and method-level options with clear precedence:
+// Priority (high to low): method opts > client opts > built-in defaults
+// @defaultOpts: Built-in default options
+// @clientOpts: Options provided when creating HTTP client via CreateHttpClient
+// @methodOpts: Options provided when calling Get/Post/Put/Down/UploadFile methods
+func mergeDefaultParams(defaultOpts, clientOpts, methodOpts Options) Options {
+	result := defaultOpts
 
-		if len(options) == 2 {
-			if options[0].Headers == nil {
-				options[0].Headers = make(map[string]interface{}, 1)
-			}
-			for key, value := range options[1].Headers {
-				if _, exists := options[0].Headers[key]; !exists {
-					options[0].Headers[key] = fmt.Sprintf("%v", value)
-				}
-			}
-			// header 头参数参数合并完成后，继续合并以下几个参数:BaseURI 、Timeout等
-			if options[0].BaseURI == "" && options[1].BaseURI != "" {
-				options[0].BaseURI = options[1].BaseURI
-			}
-
-			if options[0].Timeout <= 0 && options[1].Timeout >= 0 {
-				options[0].Timeout = options[1].Timeout
-			}
-			if options[0].Proxy == "" && options[1].Proxy != "" {
-				options[0].Proxy = options[1].Proxy
-			}
-			if options[0].Cookies == nil && options[1].Cookies != nil {
-				options[0].Cookies = options[1].Cookies
-			}
-			if options[0].SetResCharset == "" && options[1].SetResCharset != "" {
-				options[0].SetResCharset = options[1].SetResCharset
-			}
-		}
-
-		for key, value := range defaultHeaders.Headers {
-			if options[0].Headers != nil {
-				if _, exists := options[0].Headers[key]; !exists {
-					options[0].Headers[key] = fmt.Sprintf("%v", value)
-				}
-			} else {
-				options[0].Headers = make(map[string]interface{}, 1)
-				options[0].Headers[key] = fmt.Sprintf("%v", value)
-			}
-		}
-
-		return options[0]
+	if clientOpts.BaseURI != "" {
+		result.BaseURI = clientOpts.BaseURI
 	}
+	if methodOpts.BaseURI != "" {
+		result.BaseURI = methodOpts.BaseURI
+	}
+
+	if clientOpts.Timeout > 0 {
+		result.Timeout = clientOpts.Timeout
+	}
+	if methodOpts.Timeout > 0 {
+		result.Timeout = methodOpts.Timeout
+	}
+
+	if clientOpts.Proxy != "" {
+		result.Proxy = clientOpts.Proxy
+	}
+	if methodOpts.Proxy != "" {
+		result.Proxy = methodOpts.Proxy
+	}
+
+	if clientOpts.Cookies != nil {
+		result.Cookies = clientOpts.Cookies
+	}
+	if methodOpts.Cookies != nil {
+		result.Cookies = methodOpts.Cookies
+	}
+
+	if clientOpts.SetResCharset != "" {
+		result.SetResCharset = clientOpts.SetResCharset
+	}
+	if methodOpts.SetResCharset != "" {
+		result.SetResCharset = methodOpts.SetResCharset
+	}
+
+	if clientOpts.FormParams != nil {
+		result.FormParams = clientOpts.FormParams
+	}
+	if methodOpts.FormParams != nil {
+		result.FormParams = methodOpts.FormParams
+	}
+
+	if clientOpts.JSON != nil {
+		result.JSON = clientOpts.JSON
+	}
+	if methodOpts.JSON != nil {
+		result.JSON = methodOpts.JSON
+	}
+
+	if clientOpts.XML != "" {
+		result.XML = clientOpts.XML
+	}
+	if methodOpts.XML != "" {
+		result.XML = methodOpts.XML
+	}
+
+	result.Headers = mergeHeaders(defaultOpts.Headers, clientOpts.Headers, methodOpts.Headers)
+
+	return result
+}
+
+func mergeHeaders(defaults, client, method map[string]interface{}) map[string]interface{} {
+	result := make(map[string]interface{})
+
+	for k, v := range defaults {
+		result[k] = v
+	}
+
+	for k, v := range client {
+		if _, exists := result[k]; !exists {
+			result[k] = v
+		}
+	}
+
+	for k, v := range method {
+		result[k] = v
+	}
+
+	return result
 }
 
 // 默认设置headers头信息，尽可能伪装成为真实的浏览器

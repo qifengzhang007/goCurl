@@ -3,12 +3,13 @@ package goCurl
 import (
 	"errors"
 	"fmt"
-	"github.com/axgle/mahonia"
 	"io"
 	"net"
 	"net/http"
 	"net/http/cookiejar"
 	"strings"
+
+	"github.com/axgle/mahonia"
 )
 
 // Response response object
@@ -18,6 +19,15 @@ type Response struct {
 	cookiesJar    *cookiejar.Jar
 	err           error
 	setResCharset string
+	formParams    map[string]interface{}
+}
+
+// RequestInfo holds the complete request information including http.Request and goCurl-specific options
+type RequestInfo struct {
+	Req           *http.Request
+	Headers       http.Header
+	FormParams    map[string]interface{}
+	SetResCharset string
 }
 
 // GetCookies, 获取服务端生成的全部cookies
@@ -38,9 +48,14 @@ func (r *Response) GetCookie(cookieName string) *http.Cookie {
 	return nil
 }
 
-// GetRequest get request object
-func (r *Response) GetRequest() *http.Request {
-	return r.req
+// GetRequest get request object with all goCurl-specific options
+func (r *Response) GetRequest() *RequestInfo {
+	return &RequestInfo{
+		Req:           r.req,
+		Headers:       r.req.Header,
+		FormParams:    r.formParams,
+		SetResCharset: r.setResCharset,
+	}
 }
 
 // GetRequest get request object
