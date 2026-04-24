@@ -259,7 +259,7 @@ func (r *Request) parseTimeout() {
 	if r.opts.Timeout > 0 {
 		r.opts.timeout = time.Duration(r.opts.Timeout*1000) * time.Millisecond
 	} else {
-		r.opts.Timeout = 0
+		r.opts.timeout = 0
 	}
 }
 

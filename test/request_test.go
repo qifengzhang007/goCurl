@@ -195,7 +195,7 @@ func TestRequestPostFormDataWithXml(t *testing.T) {
 			"byProvinceName": "重庆", // 参数选项：上海、北京、天津、重庆 等。这个接口在postman测试有时候也是很稳定，可以更换参数多次测试
 		},
 		SetResCharset: "utf-8",
-		Timeout:       10,
+		Timeout:       10, // 超时时间，单位： 秒
 	})
 	if err != nil {
 		t.Errorf("请求出错：%s\n", err.Error())
@@ -236,7 +236,7 @@ func TestRequestPostRawWithXml(t *testing.T) {
 			"SOAPAction":   "http://WebXml.com.cn/getSupportCity", //  该参数按照业务方的具体要求传递
 		},
 		XML:     xml,
-		Timeout: 20,
+		Timeout: 20, // 超时时间，单位： 秒
 	})
 	fmt.Printf("请求参数：%#+v\n", resp.GetRequest())
 	if err != nil {
@@ -259,7 +259,7 @@ func TestRequestGetWithProxy(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 
 	resp, err := cli.Get("http://myip.top/", goCurl.Options{
-		Timeout: 60,
+		Timeout: 60,                            // 超时时间，单位： 秒
 		Proxy:   "http://113.241.137.248:4330", // 该ip需要自己去申请每日免费试用
 	})
 	if err != nil {
@@ -282,7 +282,7 @@ func TestRequestGetWithProxy(t *testing.T) {
 func TestRequestDown(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 	_, err := cli.Down("http://139.196.101.31:2080/GinSkeleton.jpg", "./", "ginskeleton.jpg", goCurl.Options{
-		Timeout: 60.0,
+		Timeout: 60.0, // 超时时间，单位： 秒
 	})
 	if err == nil {
 		t.Log("下载完成，请检查指定的下载目录")
@@ -419,7 +419,7 @@ func TestRequestSseGet(t *testing.T) {
 			"Cache-Control": "no-cache",
 			"Connection":    "keep-alive",
 		},
-		Timeout: -1,
+		Timeout: -1, // 小于等于0的值均为不超时
 	}
 	// Sse 方法会阻塞目前的代码，如果需要异步接收处理sseClient收到的消息，请使用go协程启动该方法
 	err := cli.Sse("get", sseServerUrl, func(msgType, content string) bool {
@@ -468,7 +468,7 @@ func TestRequestSse(t *testing.T) {
 			"Cache-Control": "no-cache",
 			"Connection":    "keep-alive",
 		},
-		Timeout: -1,
+		Timeout: -1, // 小于等于0的值均为不超时
 		JSON: chaGpt{
 			Model:  "gpt-3.5-turbo",
 			Stream: true,

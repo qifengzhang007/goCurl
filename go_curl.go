@@ -111,7 +111,7 @@ func mergeHeaders(defaults, client, method map[string]interface{}) map[string]in
 	return result
 }
 
-// 默认设置headers头信息，尽可能伪装成为真实的浏览器
+// 默认设置headers头信息，模拟浏览器默认参数
 func defaultHeader() Options {
 	headers := Options{
 		Headers: map[string]interface{}{
