@@ -97,11 +97,8 @@ func mergeHeaders(defaults, client, method map[string]interface{}) map[string]in
 	for k, v := range defaults {
 		result[k] = v
 	}
-
 	for k, v := range client {
-		if _, exists := result[k]; !exists {
-			result[k] = v
-		}
+		result[k] = v
 	}
 
 	for k, v := range method {
