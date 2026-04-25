@@ -20,13 +20,18 @@ type Response struct {
 	err           error
 	setResCharset string
 	formParams    map[string]interface{}
+	jsonData      interface{}
+	xmlData       string
 }
 
-// RequestInfo holds the complete request information including http.Request and goCurl-specific options
+// RequestInfo 定义请求时提交的完整参数
 type RequestInfo struct {
 	Req           *http.Request
+	URI           string
 	Headers       http.Header
 	FormParams    map[string]interface{}
+	JSON          interface{}
+	XML           string
 	SetResCharset string
 }
 
@@ -48,12 +53,15 @@ func (r *Response) GetCookie(cookieName string) *http.Cookie {
 	return nil
 }
 
-// GetRequest get request object with all goCurl-specific options
+// GetRequest 获取请求对象（参数）
 func (r *Response) GetRequest() *RequestInfo {
 	return &RequestInfo{
 		Req:           r.req,
+		URI:           r.req.URL.String(),
 		Headers:       r.req.Header,
 		FormParams:    r.formParams,
+		JSON:          r.jsonData,
+		XML:           r.xmlData,
 		SetResCharset: r.setResCharset,
 	}
 }

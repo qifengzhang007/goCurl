@@ -246,6 +246,8 @@ func (r *Request) Request(method, uri string, opts ...Options) (*Response, error
 		err:           err,
 		setResCharset: r.opts.SetResCharset,
 		formParams:    r.opts.FormParams,
+		jsonData:      r.opts.JSON,
+		xmlData:       r.opts.XML,
 	}
 
 	if err != nil {
@@ -372,18 +374,17 @@ func (r *Request) parseBody() {
 
 func (r *Request) parseBodyWithFileUpload() {
 	if r.opts.FormParams != nil {
-		values := url.Values{}
 		for k, v := range r.opts.FormParams {
 			if vv, ok := v.([]string); ok {
 				for _, vvv := range vv {
 					if strings.ReplaceAll(vvv, " ", "") != "" {
-						values.Add(k, vvv)
 						_ = r.fileUpload.multipartWrite.WriteField(k, vvv)
 					}
 				}
+			} else {
+				vv := fmt.Sprintf("%v", v)
+				_ = r.fileUpload.multipartWrite.WriteField(k, vv)
 			}
-			vv := fmt.Sprintf("%v", v)
-			_ = r.fileUpload.multipartWrite.WriteField(k, vv)
 		}
 	}
 	// 关闭multipart writer以完成表单数据的写入
@@ -400,11 +401,14 @@ func (r *Request) parseFormData(method, uri string) string {
 	uriParse, err := url.Parse(uri)
 	values := url.Values{}
 	if err != nil {
-		return ""
+		return uri
 	}
 
 	uriPre = uriParse.Scheme + "://" + uriParse.Host + uriParse.Path
 	for _, item := range strings.Split(uriParse.RawQuery, "&") {
+		if item == "" {
+			continue
+		}
 		if key, val, find := strings.Cut(item, "="); find {
 			val = fmt.Sprintf("%v", val)
 			values.Set(key, val)
@@ -419,9 +423,10 @@ func (r *Request) parseFormData(method, uri string) string {
 						values.Add(k, vvv)
 					}
 				}
+			} else {
+				vv := fmt.Sprintf("%v", v)
+				values.Set(k, vv)
 			}
-			vv := fmt.Sprintf("%v", v)
-			values.Set(k, vv)
 		}
 	}
 	queryParams := ""

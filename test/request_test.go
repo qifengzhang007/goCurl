@@ -82,6 +82,7 @@ func TestRequestGetWithQuery(t *testing.T) {
 	if err != nil {
 		t.Errorf("osChina请求出错：%s\n", err.Error())
 	} else {
+		t.Logf("请求的全部参数：%#+v\n", resp.GetRequest())
 		txt, err := resp.GetContents()
 		if err == nil {
 			t.Logf("请求结果：%s\n", txt)
@@ -160,7 +161,7 @@ func TestRequestPostWithJSON(t *testing.T) {
 
 	resp, err := cli.Post("http://127.0.0.1:8091/post-with-json", goCurl.Options{
 		Headers: map[string]interface{}{
-			"Content-Type": "application/json",
+			"Content-Type": "application/json;utf-8",
 		},
 		JSON: struct {
 			Code int      `json:"code"`
@@ -171,6 +172,7 @@ func TestRequestPostWithJSON(t *testing.T) {
 	if err != nil {
 		t.Errorf("请求出错：%s\n", err.Error())
 	} else {
+		t.Logf("请求的全部参数：%#+v\n", resp.GetRequest())
 		txt, err := resp.GetContents()
 		if err == nil {
 			t.Logf("请求结果：%s\n", txt)
@@ -282,7 +284,7 @@ func TestRequestGetWithProxy(t *testing.T) {
 func TestRequestDown(t *testing.T) {
 	cli := goCurl.CreateHttpClient()
 	_, err := cli.Down("http://139.196.101.31:2080/GinSkeleton.jpg", "./", "ginskeleton.jpg", goCurl.Options{
-		Timeout: 60.0, // 超时时间，单位： 秒
+		Timeout: 1, // 超时时间，单位： 秒
 	})
 	if err == nil {
 		t.Log("下载完成，请检查指定的下载目录")
