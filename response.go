@@ -148,7 +148,7 @@ func (r *Response) GetHeaders() map[string][]string {
 func (r *Response) HasHeader(name string) bool {
 	headers := r.GetHeaders()
 	for k := range headers {
-		if strings.ToLower(name) == strings.ToLower(k) {
+		if strings.EqualFold(name, k) {
 			return true
 		}
 	}
@@ -160,7 +160,7 @@ func (r *Response) HasHeader(name string) bool {
 func (r *Response) GetHeader(name string) []string {
 	headers := r.GetHeaders()
 	for k, v := range headers {
-		if strings.ToLower(name) == strings.ToLower(k) {
+		if strings.EqualFold(name, k) {
 			return v
 		}
 	}

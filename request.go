@@ -167,19 +167,23 @@ func (r *Request) Sse(method, uri string, fn func(msgType, content string) bool,
 			_ = body.Close()
 		}()
 		ioReader := bufio.NewReader(body)
+		delim := []byte{':', ' '}
 		for {
-			if bys, err := ioReader.ReadBytes('\n'); err == nil && len(bys) > 4 {
-				delim := []byte{':', ' '}
-				byteSliceSlice := bytes.Split(bys, delim)
+			bys, readErr := ioReader.ReadBytes('\n')
+			if readErr != nil && readErr != io.EOF {
+				return readErr
+			}
+			bys = bytes.TrimRight(bys, "\r\n")
+			if len(bys) > 0 {
+				byteSliceSlice := bytes.SplitN(bys, delim, 2)
 				if len(byteSliceSlice) == 2 {
 					if !fn(string(byteSliceSlice[0]), string(byteSliceSlice[1])) {
 						return nil
 					}
 				}
-			} else {
-				// 如果ioreader关联的缓冲区没有内容，休眠5毫秒（避免死循环导致cpu占用率过高）
-				// 相对网络请求的耗时, 5ms 时间几乎不构成任何影响
-				time.Sleep(time.Millisecond * 5)
+			}
+			if readErr == io.EOF {
+				return nil
 			}
 		}
 	} else {
@@ -368,8 +372,6 @@ func (r *Request) parseBody() {
 		r.body = strings.NewReader(r.opts.XML)
 		return
 	}
-
-	return
 }
 
 func (r *Request) parseBodyWithFileUpload() {
