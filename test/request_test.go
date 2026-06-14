@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"strings"
 	"testing"
 
 	"github.com/qifengzhang007/goCurl"
@@ -423,25 +424,73 @@ func TestRequestSseGet(t *testing.T) {
 		},
 		Timeout: -1, // 小于等于0的值均为不超时
 	}
-	// Sse 方法会阻塞目前的代码，如果需要异步接收处理sseClient收到的消息，请使用go协程启动该方法
-	err := cli.Sse("get", sseServerUrl, func(msgType, content string) bool {
+	for i := 1; i <= 10; i++ {
 
-		switch msgType {
-		case "event":
-			// 事件类型的消息格式
-			t.Logf("(event)事件类型的消息：\n%+v\n", content)
-		case "data":
-			// 数据类型的消息格式
-			t.Logf("服务端推送的业务数据(data)：\n%+v\n", content)
+		// Sse 方法会阻塞目前的代码，如果需要异步接收处理sseClient收到的消息，请使用go协程启动该方法
+		err := cli.Sse("get", sseServerUrl, func(msgType, content string) bool {
+
+			switch msgType {
+			case "event":
+				// 事件类型的消息格式
+				t.Logf("(event)事件类型的消息：\n%+v\n", content)
+			case "data":
+				// 数据类型的消息格式
+				t.Logf("服务端推送的业务数据(data)：\n%+v\n", len(content))
+			}
+
+			// 这里是回调函数的返回值：
+			// true  表示持续接受服务端的推送数据，
+			// false 表示接受一次服务端的推送数据后，主动关闭客户端不在接受后续数据
+			return false
+		}, options)
+		if err != nil {
+			t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
 		}
 
-		// 这里是回调函数的返回值：
-		// true  表示持续接受服务端的推送数据，
-		// false 表示接受一次服务端的推送数据后，主动关闭客户端不在接受后续数据
-		return true
-	}, options)
-	if err != nil {
-		t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
+	}
+
+}
+
+func TestRequestSseGet2(t *testing.T) {
+	var stockSlice = []string{"601899", "002190", "000617", "002980", "601975", "002459", "002990", "002636", "002130", "603052"}
+
+	sseServerUrl := "https://92.push2.eastmoney.com/api/qt/stock/details/sse?fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55&mpi=2000&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&pos=-0&secid=1.{STOCKCODE}&wbp2u=|0|0|0|web"
+	cli := goCurl.CreateHttpClient() // 创建http客户端-A处
+	var options = goCurl.Options{
+		Headers: map[string]interface{}{
+			"Content-Type":  "text/event-stream",
+			"Cache-Control": "no-cache",
+			"Connection":    "keep-alive",
+		},
+		Timeout: 10, // 小于等于0的值均为不超时
+	}
+	var tmpSseServerUrl = ""
+
+	for index, stockCode := range stockSlice {
+		// cli := goCurl.CreateHttpClient()   // 注意 ： 就算把  创建http客户端-A处 移动到这里，每一次for循环创建，效果和外面一致
+		tmpSseServerUrl = strings.ReplaceAll(sseServerUrl, "{STOCKCODE}", stockCode)
+		t.Logf("第%d只股票：%s\n", index+1, stockCode)
+		// Sse 方法会阻塞目前的代码，如果需要异步接收处理sseClient收到的消息，请使用go协程启动该方法
+		err := cli.Sse("get", tmpSseServerUrl, func(msgType, content string) bool {
+
+			switch msgType {
+			case "event":
+				// 事件类型的消息格式
+				t.Logf("(event)事件类型的消息：\n%+v\n", content)
+			case "data":
+				// 数据类型的消息格式
+				t.Logf("服务端推送的业务数据(data)：\n%+v\n", len(content))
+			}
+
+			// 这里是回调函数的返回值：
+			// true  表示持续接受服务端的推送数据，
+			// false 表示接受一次服务端的推送数据后，主动关闭客户端不在接受后续数据
+			return false
+		}, options)
+		if err != nil {
+			t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
+		}
+		// time.Sleep(time.Second * 5)
 	}
 
 }
