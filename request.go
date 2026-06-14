@@ -3,7 +3,6 @@ package goCurl
 import (
 	"bufio"
 	"bytes"
-	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -24,6 +23,7 @@ import (
 type Request struct {
 	opts           Options
 	cli            *http.Client
+	transport      *http.Transport
 	req            *http.Request
 	body           io.Reader
 	formDataParams string
@@ -270,24 +270,17 @@ func (r *Request) parseTimeout() {
 }
 
 func (r *Request) parseClient() {
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-
 	if r.opts.Proxy != "" {
 		proxy, err := url.Parse(r.opts.Proxy)
 		if err == nil {
-			tr.Proxy = http.ProxyURL(proxy)
+			r.transport.Proxy = http.ProxyURL(proxy)
 		} else {
 			fmt.Println(r.opts.Proxy+proxyError, err.Error())
 		}
+	} else {
+		r.transport.Proxy = nil
 	}
-
-	r.cli = &http.Client{
-		Timeout:   r.opts.timeout,
-		Transport: tr,
-		Jar:       r.cookiesJar,
-	}
+	r.cli.Timeout = r.opts.timeout
 }
 
 func (r *Request) parseCookies() {

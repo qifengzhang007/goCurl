@@ -1,24 +1,29 @@
 package goCurl
 
 import (
+	"crypto/tls"
 	"net/http"
 	"net/http/cookiejar"
 )
 
-var curSiteCookiesJar, _ = cookiejar.New(nil)
-
 func CreateHttpClient(opts ...Options) *Request {
+	jar, _ := cookiejar.New(nil)
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
 	req := &Request{
 		cli: &http.Client{
-			Jar: curSiteCookiesJar,
+			Jar:       jar,
+			Transport: tr,
 		},
+		transport:  tr,
+		cookiesJar: jar,
 	}
 	if len(opts) > 0 {
 		req.opts = mergeDefaultParams(defaultHeader(), opts[0], Options{})
 	} else {
 		req.opts = defaultHeader()
 	}
-	req.cookiesJar = curSiteCookiesJar
 	return req
 }
 
