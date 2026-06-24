@@ -56,6 +56,27 @@ func mergeDefaultParams(defaultOpts, clientOpts, methodOpts Options) Options {
 		result.Proxy = methodOpts.Proxy
 	}
 
+	if clientOpts.ProxyType != "" {
+		result.ProxyType = clientOpts.ProxyType
+	}
+	if methodOpts.ProxyType != "" {
+		result.ProxyType = methodOpts.ProxyType
+	}
+
+	if clientOpts.ProxyUser != "" {
+		result.ProxyUser = clientOpts.ProxyUser
+	}
+	if methodOpts.ProxyUser != "" {
+		result.ProxyUser = methodOpts.ProxyUser
+	}
+
+	if clientOpts.ProxyPassword != "" {
+		result.ProxyPassword = clientOpts.ProxyPassword
+	}
+	if methodOpts.ProxyPassword != "" {
+		result.ProxyPassword = methodOpts.ProxyPassword
+	}
+
 	if clientOpts.Cookies != nil {
 		result.Cookies = clientOpts.Cookies
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"strings"
 	"testing"
 
 	"github.com/qifengzhang007/goCurl"
@@ -21,6 +22,10 @@ func TestRequestGet(t *testing.T) {
 		},
 		SetResCharset: "GB18030",
 		BaseURI:       "",
+		Proxy:         "58.19.48.185:37293", // 代理IP需要找服务商申请
+		//ProxyType:     "socks5",  // 如果是socks5代理，需要指定代理类型
+		// ProxyUser:     "user",  // SOCKS5 代理用户名，无鉴权可省略
+		// ProxyPassword: "password",// SOCKS5 代理密码，无鉴权可省略
 	})
 	resp, err := cli.Get("http://hq.sinajs.cn/list=sz002594")
 	//t.Logf("请求参数：%v\n", resp.GetRequest())
@@ -277,6 +282,26 @@ func TestRequestGetWithProxy(t *testing.T) {
 	}
 }
 
+func TestRequestGetWithProxy2(t *testing.T) {
+	cli := goCurl.CreateHttpClient()
+
+	resp, err := cli.Get("https://push2.eastmoney.com/api/qt/stock/get?invt=2&fltt=1&fields=f135,f136,f137&secid=1.000001&ut=fa5fd1943c7b386f172d6893dbfba10b&wbp2u=|0|0|0|web&_=20260615120830", goCurl.Options{
+		Timeout: 60,                           // 超时时间，单位： 秒
+		Proxy:   "http://112.49.20.221:20121", // 该ip需要自己去申请每日免费试用
+	})
+	if err != nil {
+		t.Errorf("请求出错：%s\n", err.Error())
+	} else {
+		txt, err := resp.GetContents()
+		if err == nil {
+			// Proxy 参数设置 和 取消 您在这里将会看见不同的返回ip
+			t.Logf("请求结果：%s\n", txt)
+		} else {
+			t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
+		}
+	}
+}
+
 // 文件下载
 // 参数一 > 要下载的资源地址
 // 参数二 > 指定下载路径（服务器最好指定绝对路径）
@@ -447,57 +472,57 @@ func TestRequestSseGet(t *testing.T) {
 
 }
 
-//func TestRequestSseGet2(t *testing.T) {
-//	// 上海交易所股票（6开头）用 secid=1.前缀，深圳交易所股票（0/3开头）用 secid=0.前缀
-//	// 改用全部上海股票测试，避免跨交易所前缀错误
-//	var stockSlice = []string{"002190", "603717", "002459", "603698", "002130"}
-//
-//	sseServerUrl := "https://92.push2.eastmoney.com/api/qt/stock/details/sse?fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55&mpi=2000&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&pos=-0&secid={MARKET}.{STOCKCODE}&wbp2u=|0|0|0|web"
-//	cli := goCurl.CreateHttpClient() // 创建http客户端-A处
-//	var options = goCurl.Options{
-//		Headers: map[string]interface{}{
-//			"Content-Type":  "text/event-stream",
-//			"Cache-Control": "no-cache",
-//			"Connection":    "keep-alive",
-//		},
-//		Timeout: 10, // 小于等于0的值均为不超时
-//		//Proxy:   "http://103.217.191.31:20046",
-//	}
-//	var tmpSseServerUrl = ""
-//
-//	for index, stockCode := range stockSlice {
-//		if strings.HasPrefix(stockCode, "6") {
-//			tmpSseServerUrl = strings.ReplaceAll(sseServerUrl, "{MARKET}", "1")
-//		} else {
-//			tmpSseServerUrl = strings.ReplaceAll(sseServerUrl, "{MARKET}", "0")
-//		}
-//
-//		// cli := goCurl.CreateHttpClient()   // 注意 ： 就算把  创建http客户端-A处 移动到这里，每一次for循环创建，效果和外面一致
-//		tmpSseServerUrl = strings.ReplaceAll(tmpSseServerUrl, "{STOCKCODE}", stockCode)
-//		t.Logf("第%d只股票：%s - %s\n", index+1, stockCode, tmpSseServerUrl)
-//		// Sse 方法会阻塞目前的代码，如果需要异步接收处理sseClient收到的消息，请使用go协程启动该方法
-//		err := cli.Sse("get", tmpSseServerUrl, func(msgType, content string) bool {
-//
-//			switch msgType {
-//			case "event":
-//				// 事件类型的消息格式
-//				t.Logf("(event)事件类型的消息：\n%+v\n", content)
-//			case "data":
-//				// 数据类型的消息格式
-//				t.Logf("服务端推送的业务数据(data)：\n%+v\n", len(content))
-//			}
-//
-//			// 这里是回调函数的返回值：
-//			// true  表示持续接受服务端的推送数据，
-//			// false 表示接受一次服务端的推送数据后，主动关闭客户端不在接受后续数据
-//			return false
-//		}, options)
-//		if err != nil {
-//			t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
-//		}
-//	}
-//
-//}
+func TestRequestSseGet2(t *testing.T) {
+	// 上海交易所股票（6开头）用 secid=1.前缀，深圳交易所股票（0/3开头）用 secid=0.前缀
+	// 改用全部上海股票测试，避免跨交易所前缀错误
+	var stockSlice = []string{"002190", "603717", "002459", "603698", "002130"}
+
+	sseServerUrl := "https://92.push2.eastmoney.com/api/qt/stock/details/sse?fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55&mpi=2000&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&pos=-0&secid={MARKET}.{STOCKCODE}&wbp2u=|0|0|0|web"
+	cli := goCurl.CreateHttpClient() // 创建http客户端-A处
+	var options = goCurl.Options{
+		Headers: map[string]interface{}{
+			"Content-Type":  "text/event-stream",
+			"Cache-Control": "no-cache",
+			"Connection":    "keep-alive",
+		},
+		Timeout: 10, // 小于等于0的值均为不超时
+		//Proxy:   "http://103.217.191.31:20046",
+	}
+	var tmpSseServerUrl = ""
+
+	for index, stockCode := range stockSlice {
+		if strings.HasPrefix(stockCode, "6") {
+			tmpSseServerUrl = strings.ReplaceAll(sseServerUrl, "{MARKET}", "1")
+		} else {
+			tmpSseServerUrl = strings.ReplaceAll(sseServerUrl, "{MARKET}", "0")
+		}
+
+		// cli := goCurl.CreateHttpClient()   // 注意 ： 就算把  创建http客户端-A处 移动到这里，每一次for循环创建，效果和外面一致
+		tmpSseServerUrl = strings.ReplaceAll(tmpSseServerUrl, "{STOCKCODE}", stockCode)
+		t.Logf("第%d只股票：%s - %s\n", index+1, stockCode, tmpSseServerUrl)
+		// Sse 方法会阻塞目前的代码，如果需要异步接收处理sseClient收到的消息，请使用go协程启动该方法
+		err := cli.Sse("get", tmpSseServerUrl, func(msgType, content string) bool {
+
+			switch msgType {
+			case "event":
+				// 事件类型的消息格式
+				t.Logf("(event)事件类型的消息：\n%+v\n", content)
+			case "data":
+				// 数据类型的消息格式
+				t.Logf("服务端推送的业务数据(data)：\n%+v\n", len(content))
+			}
+
+			// 这里是回调函数的返回值：
+			// true  表示持续接受服务端的推送数据，
+			// false 表示接受一次服务端的推送数据后，主动关闭客户端不在接受后续数据
+			return false
+		}, options)
+		if err != nil {
+			t.Errorf("单元测试失败,错误明细：%s\n", err.Error())
+		}
+	}
+
+}
 
 // Sse 通过sse客户端的post方式请求 chatgpt 服务器接口
 func TestRequestSse(t *testing.T) {

@@ -270,15 +270,48 @@ func (r *Request) parseTimeout() {
 }
 
 func (r *Request) parseClient() {
-	if r.opts.Proxy != "" {
-		proxy, err := url.Parse(r.opts.Proxy)
+	if r.opts.Proxy == "" {
+		r.transport.Proxy = nil
+		r.transport.DialContext = nil
+		r.cli.Timeout = r.opts.timeout
+		return
+	}
+
+	switch strings.ToLower(r.opts.ProxyType) {
+	case "socks5":
+		// SOCKS5 代理
+		// 自动剥离 socks5:// 和 // 前缀，纯 host:port 格式原样保留
+		proxyAddr := r.opts.Proxy
+		if strings.HasPrefix(proxyAddr, "socks5://") {
+			proxyAddr = proxyAddr[9:]
+		} else if strings.HasPrefix(proxyAddr, "//") {
+			proxyAddr = proxyAddr[2:]
+		}
+
+		var auth *socks5Auth
+		if r.opts.ProxyUser != "" || r.opts.ProxyPassword != "" {
+			auth = &socks5Auth{
+				User:     r.opts.ProxyUser,
+				Password: r.opts.ProxyPassword,
+			}
+		}
+		dialer := newSocks5Dialer(proxyAddr, auth)
+		r.transport.Proxy = nil
+		r.transport.DialContext = dialer.DialContext
+	default:
+		// HTTP/HTTPS 代理（默认行为）
+		r.transport.DialContext = nil
+		// 自动补全 http:// 前缀，兼容 "ip:port" 这种简写格式
+		proxyStr := r.opts.Proxy
+		if !strings.Contains(proxyStr, "://") {
+			proxyStr = "http://" + proxyStr
+		}
+		proxyURL, err := url.Parse(proxyStr)
 		if err == nil {
-			r.transport.Proxy = http.ProxyURL(proxy)
+			r.transport.Proxy = http.ProxyURL(proxyURL)
 		} else {
 			fmt.Println(r.opts.Proxy+proxyError, err.Error())
 		}
-	} else {
-		r.transport.Proxy = nil
 	}
 	r.cli.Timeout = r.opts.timeout
 }

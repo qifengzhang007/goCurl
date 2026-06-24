@@ -6,6 +6,8 @@ const (
 	charsetDecoderError = `程序没有自动检测到对方站点响应 Header["Content-Type"] 编码类型,请创建客户端时手动指定 options 的参数 SetResCharset 值，可选值(GB18030、GBK、utf-8等)`
 	// 代理设置错误
 	proxyError = "代理设置错误，一般是设置的代理ip地址不可用 "
+	// SOCKS5代理设置错误
+	socks5ProxyError = "SOCKS5代理设置错误，请检查代理地址和认证信息 "
 	// 下载的目标文件内容为空
 	downloadFileIsEmpty = "被下载的文件内容为空"
 	// 无效的请求方式
