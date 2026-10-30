@@ -15,3 +15,6 @@ const (
 	// 文件上传请求方式(中间过程使用)
 	postWithFileUpload = "PostWithFileUpload"
 )
+
+// 默认的表单提交 Content-Type（defaultHeader 使用；当以 JSON 方式提交且用户未显式指定 Content-Type 时，自动替换为 application/json）
+const defaultFormContentType = "application/x-www-form-urlencoded;charset=utf-8"

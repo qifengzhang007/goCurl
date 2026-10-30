@@ -26,7 +26,9 @@ type Response struct {
 
 // RequestInfo 定义请求时提交的完整参数
 type RequestInfo struct {
-	Req           *http.Request
+	// Req 为原始 *http.Request，其内部包含 GetBody(func)、Cancel(chan) 等
+	// encoding/json 不支持的字段，序列化时忽略；请求信息请使用下方已提取好的字段
+	Req           *http.Request `json:"-"`
 	URI           string
 	Headers       http.Header
 	FormParams    map[string]interface{}

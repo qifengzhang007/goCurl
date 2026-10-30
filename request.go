@@ -202,16 +202,25 @@ func (r *Request) Request(method, uri string, opts ...Options) (*Response, error
 		r.opts = mergeDefaultParams(defaultHeader(), r.opts, opts[0])
 	}
 	switch method {
-	case http.MethodGet, http.MethodDelete:
+	case http.MethodGet:
 		uri = r.opts.BaseURI + r.parseFormData(method, uri)
 		req, err := http.NewRequest(method, uri, nil)
 		if err != nil {
 			return nil, err
 		}
 		r.req = req
+	case http.MethodDelete:
+		// DELETE 支持携带 JSON/XML 请求体；FormParams 仍由 parseFormData 拼接到 query
+		r.parseBody(method)
+		uri = r.opts.BaseURI + r.parseFormData(method, uri)
+		req, err := http.NewRequest(method, uri, r.body)
+		if err != nil {
+			return nil, err
+		}
+		r.req = req
 	case http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodOptions:
 		// parse body
-		r.parseBody()
+		r.parseBody(method)
 		uri = r.opts.BaseURI + r.parseFormData(method, uri)
 		req, err := http.NewRequest(method, uri, r.body)
 		if err != nil {
@@ -353,14 +362,21 @@ func (r *Request) parseHeaders() {
 				continue
 			}
 			vv := fmt.Sprintf("%v", v)
+			if strings.ReplaceAll(vv, " ", "") == "" {
+				continue
+			}
 			r.req.Header.Set(k, vv)
 		}
 	}
 }
 
-func (r *Request) parseBody() {
+func (r *Request) parseBody(method string) {
+	// 重置 body，避免同一 client 连续请求时残留上一次的 body
+	r.body = nil
+
 	// application/x-www-form-urlencoded
-	if r.opts.FormParams != nil {
+	// DELETE 的 FormParams 由 parseFormData 拼接到 query，不占用 body
+	if r.opts.FormParams != nil && method != http.MethodDelete {
 		values := url.Values{}
 		for k, v := range r.opts.FormParams {
 			if vv, ok := v.([]string); ok {
@@ -385,7 +401,9 @@ func (r *Request) parseBody() {
 		if err == nil {
 			r.body = bytes.NewReader(b)
 			if r.opts.Headers != nil {
-				if _, exists := r.opts.Headers["Content-Type"]; !exists {
+				ct, exists := r.opts.Headers["Content-Type"]
+				// 开发者忘记显式设置 Content-Type（未设置、为空、或仍是默认的表单值）时，自动纠正为 application/json
+				if !exists || fmt.Sprintf("%v", ct) == "" || fmt.Sprintf("%v", ct) == defaultFormContentType {
 					r.opts.Headers["Content-Type"] = "application/json"
 				}
 			}
